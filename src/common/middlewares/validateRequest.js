@@ -1,7 +1,6 @@
 const { HTTP } = require("../constants/http");
 const { RESPONSE } = require("../constants/response");
 const createError = require("../helpers/createError");
-const { deleteFile } = require("@admoni/upload-module");
 
 /**
  * Creates a middleware to validate request payloads with Joi schemas

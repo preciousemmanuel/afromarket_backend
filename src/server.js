@@ -3,7 +3,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const compression = require("compression");
 const morgan = require("morgan");
-// const routes = require("./modules/routes");
+const routes = require("./modules/routes");
 const KEYS = require("./common/config/keys");
 const createError = require("./common/helpers/createError");
 const { RESPONSE } = require("./common/constants/response");
@@ -35,7 +35,7 @@ app.use(function (_err, _req, _res, _) {
 });
 
 const apiRouter = express.Router();
-// apiRouter.use(routes());
+apiRouter.use(routes());
 
 // handler for route-not-found
 apiRouter.use((_req, _res, next) => {
