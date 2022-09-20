@@ -4,29 +4,29 @@ const {hashPassword, comparePassword} = require('../../common/helpers/password')
 const {jwtDecode, jwtSign, jwtVerify} = require('../../common/helpers/token')
 const {
     sequelize,
-    User
+    Merchant
 } = models
 
-exports.registerUser = async (data) =>{
+exports.registerMerchant = async (data) =>{
     try {
         let password
         if(data.password){
             password = hashPassword(data.password)
         }
-        const existingUser = await User.findAll({
+        const existingMerchant = await Merchant.findAll({
             where:{
                 email: data.email
             }
         })
 
-        if(!existingUser){
+        if(!existingMerchant){
             return{
                 error: true,
                 message: 'Email already exist on the server',
                 data: null
             }
         }
-        const newUser = await User.create(
+        const newMerchant = await Merchant.create(
             {
                 ...data,
                 password: data.password? password: null
@@ -35,8 +35,8 @@ exports.registerUser = async (data) =>{
         )
         return {
             error: false,
-            message: "User registered successfully",
-            data: newUser
+            message: "merchant registered successfully",
+            data: newMerchant
         }
 
     } catch (error) {
@@ -50,7 +50,7 @@ exports.registerUser = async (data) =>{
     }
 }
 
-exports.loginUser = async(user, data) => {
+exports.loginMerchant = async(user, data) => {
     try {
         if(data.password){
             const passwordMatch = await comparePassword(user.password, data.password)
@@ -69,26 +69,26 @@ exports.loginUser = async(user, data) => {
         }
 
         const refreshToken = jwtSign(user.id)
-        await User.update(
+        await Merchant.update(
             {refreshTokens: refreshToken},
             {where: {id: user.id}}
         )
-        const loginUser = await User.findOne({
-            attributes:['email','fullname', 'id'],
+        const loginMerchant = await Merchant.findOne({
+            attributes:['email','fullname', 'id', 'phone_number'],
             where: {id:user.id}
         })
 
         return{
             error: false,
             message: 'Login successful',
-            data: {loginUser, accesstoken: refreshToken}
+            data: {loginMerchant, accesstoken: refreshToken}
         }
 
     } catch (error) {
         console.log(error)
         return{
             error: true,
-            message: error.message|| "Unable to log in user at the moment",
+            message: error.message|| "Unable to log in merchant at the moment",
             data: null
         }
     }

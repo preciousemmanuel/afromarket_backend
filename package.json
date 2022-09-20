@@ -10,7 +10,8 @@
     "db:init": "sequelize-cli db:create",
     "add-migration": "makemigration --name",
     "new-migration": "makemigration --preview",
-    "migration": "runmigration"
+    "migration-0": "runmigration",
+    "migration": "sequelize-cli db:migrate"
   },
   "repository": {
     "type": "git",
@@ -38,6 +39,7 @@
     "helmet": "^6.0.0",
     "joi": "^17.6.0",
     "joi-objectid": "^4.0.2",
+    "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.4",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
@@ -49,6 +51,7 @@
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.23.0",
     "sequelize-auto-migrations-v2": "^1.2.1",
+    "sequelize-cli": "^6.4.1",
     "typeorm": "^0.3.9"
   }
 }

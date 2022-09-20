@@ -11,6 +11,7 @@ const KEYS = {
   dbPort: +(process.env.DB_PORT || "") || 25,
   username: process.env.DB_USERNAME || "",
   password: process.env.DB_PASSWORD || "",
+  JWTSecret:process.env.JWT_SECRET,
 };
 
 module.exports = KEYS;

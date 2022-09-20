@@ -1,7 +1,7 @@
 const secrets = require("./keys");
 
 module.exports = {
-  dev: {
+  development: {
     username: secrets.username,
     password: secrets.password,
     database: secrets.name,
@@ -23,7 +23,7 @@ module.exports = {
       bigNumberStrings: true,
     },
   },
-  prod: {
+  production: {
     username: secrets.username,
     password: secrets.password,
     database: secrets.name,

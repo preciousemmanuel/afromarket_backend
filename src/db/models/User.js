@@ -21,10 +21,27 @@ module.exports = (sequelize, DataTypes) =>{
         unique: true,
         type: DataTypes.STRING,
       },
+      phone_number:{
+        type: DataTypes.STRING,
+        allowNull: true
+      },
       password: {
         type: DataTypes.STRING,
-      }
+      },
+      isVerified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      isBlocked: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      refreshTokens: {
+        type: DataTypes.STRING
+      },
+
     },
+
     {
       sequelize,
       modelName: "User",

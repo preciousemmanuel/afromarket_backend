@@ -27,11 +27,3 @@ const testSequelize = async () => {
 exports.sequelize = sequelize;
 exports.testSequelize = testSequelize;
 
-// const sequelize = new Sequelize(
-//   dev.database,
-//   dev.username,
-//   dev.password,{
-//     host: dev.host,
-//     dialect: dev.dialect,
-//   }
-// )
