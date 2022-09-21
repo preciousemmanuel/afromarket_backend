@@ -2,11 +2,11 @@ const {HTTP} = require('../../common/constants/http')
 const {RESPONSE} = require('../../common/constants/response')
 const createError = require("../../common/helpers/createError");
 const { createResponse } = require("../../common/helpers/createResponse");
-const UserService = require('./user.service')
+const MerchantService = require('./merchant.service')
 
-exports.registerUserController = async (req, res, next) => {
+exports.registerMerchantController = async (req, res, next) => {
     try {
-        const {error, message, data} = await UserService.registerUser({
+        const {error, message, data} = await MerchantService.registerMerchant({
             ...req.body
         })
 
@@ -31,9 +31,9 @@ exports.registerUserController = async (req, res, next) => {
     }
 }
 
-exports.loginUserController = async (req, res, next) => {
+exports.loginMerchantController = async (req, res, next) => {
     try {
-        const {error, message, data} = await UserService.loginUser(req.user,req.body)
+        const {error, message, data} = await MerchantService.loginMerchant(req.user,req.body)
 
         if (error) {
         return next(

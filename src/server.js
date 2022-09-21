@@ -76,7 +76,7 @@ apiRouter.use((error, _req, res, _next) => {
   });
 });
 
-const apiURL = `/afromarket/${KEYS.appVersion}`;
+const apiURL = `/afro-market/${KEYS.appVersion}`;
 
 app.use(apiURL, apiRouter);
 

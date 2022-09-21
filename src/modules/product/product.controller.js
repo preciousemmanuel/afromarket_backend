@@ -2,13 +2,14 @@ const {HTTP} = require('../../common/constants/http')
 const {RESPONSE} = require('../../common/constants/response')
 const createError = require("../../common/helpers/createError");
 const { createResponse } = require("../../common/helpers/createResponse");
-const UserService = require('./user.service')
+const ProductService = require('./product.service')
 
-exports.registerUserController = async (req, res, next) => {
+exports.uploadProductController = async (req, res, next) => {
     try {
-        const {error, message, data} = await UserService.registerUser({
-            ...req.body
-        })
+        const {error, message, data} = await ProductService.uploadProduct(
+            req.user, 
+            req.body
+        )
 
         if (error) {
         return next(
@@ -31,9 +32,13 @@ exports.registerUserController = async (req, res, next) => {
     }
 }
 
-exports.loginUserController = async (req, res, next) => {
+
+exports.removeProductController = async (req, res, next) => {
     try {
-        const {error, message, data} = await UserService.loginUser(req.user,req.body)
+        const {error, message, data} = await ProductService.removeProduct(
+            req.user, 
+            req.params
+        )
 
         if (error) {
         return next(
@@ -55,3 +60,4 @@ exports.loginUserController = async (req, res, next) => {
         return next(createError.InternalServerError(err));
     }
 }
+

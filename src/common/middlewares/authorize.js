@@ -1,13 +1,14 @@
-const axios = require("axios");
 const KEYS = require("../config/keys");
+const models = require('../../db/models')
 const { HTTP } = require("../constants/http");
 const { RESPONSE } = require("../constants/response");
 const createError = require("../helpers/createError");
+const {jwtVerify} = require('../helpers/token')
+const {Merchant} = models
 
-exports.authorize = (role) => async (req, _, next) => {
+exports.authorize = () => async (req, _, next) => {
   const token =
     req.headers.authorization && req.headers.authorization.split(" ")[1];
-   console.log("Token From Adverts: ", token);
   if (!token) {
     next(
       createError(HTTP.BAD_REQUEST, [
@@ -20,12 +21,12 @@ exports.authorize = (role) => async (req, _, next) => {
     );
   }
   try {
-    const response = await axios.get(
-      `${KEYS.authUri}/validate/${token}?platform=${req.query.platform}`
-    );
-    const result = response.data.data;
-    console.log( "response:", result);
-    if (response.data.status === "error") {
+    const {id} = await jwtVerify(token)
+    const merchant = await Merchant.findOne({
+    where:{id}
+    });
+
+    if (!merchant) {
       return next(
         createError(HTTP.UNAUTHORIZED, [
           {
@@ -36,13 +37,10 @@ exports.authorize = (role) => async (req, _, next) => {
         ])
       );
     }
-    if (
-      result.user_type.toLowerCase() === role.toLowerCase() ||
-      role === "both"
-    ) {
-      console.log(result.user_id);
-      req.userId = result.user_id;
-      req.user = result.user;
+    if (merchant) {
+      console.log(merchant);
+      req.userId = merchant.id;
+      req.user = merchant;
       next();
     } else {
       next(
