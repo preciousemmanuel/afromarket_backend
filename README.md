@@ -6,3 +6,7 @@ HOW TO RUN LOCALLY
   ii. npm run migration // to update your database
   iii. npm run start // to run in development mode
   iv. npm run start:dev // to run in watch mode
+  
+  
+DOCUMENTATION
+https://documenter.getpostman.com/view/15148492/2s7Z7YKaY9
