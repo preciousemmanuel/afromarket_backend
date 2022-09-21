@@ -4,7 +4,7 @@ const { HTTP } = require("../constants/http");
 const { RESPONSE } = require("../constants/response");
 const createError = require("../helpers/createError");
 const {jwtVerify} = require('../helpers/token')
-const {Merchant} = models
+const {Merchant, User} = models
 
 exports.authorize = () => async (req, _, next) => {
   const token =
@@ -25,13 +25,16 @@ exports.authorize = () => async (req, _, next) => {
     const merchant = await Merchant.findOne({
     where:{id}
     });
+    const user = await User.findOne({
+    where:{id}
+    });
 
-    if (!merchant) {
+    if (!merchant && !user) {
       return next(
         createError(HTTP.UNAUTHORIZED, [
           {
             status: RESPONSE.ERROR,
-            message: response.data.message,
+            message: 'Unauthorized to perform this action',
             statusCode: HTTP.UNAUTHORIZED,
           },
         ])
@@ -42,6 +45,11 @@ exports.authorize = () => async (req, _, next) => {
       req.userId = merchant.id;
       req.user = merchant;
       next();
+    }else if(user) {
+      console.log(user);
+      req.userId = user.id
+      req.user = user
+      next()
     } else {
       next(
         createError(HTTP.BAD_REQUEST, [
