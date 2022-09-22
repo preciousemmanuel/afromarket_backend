@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) =>{
   class Order extends Model {
     static associate(models){
       this.belongsTo(models.User, {as: "User"})
+      this.hasMany(models.OrderedItem, {as: "OrderedItem"})
     }
   }
   Order.init(
@@ -16,7 +17,6 @@ module.exports = (sequelize, DataTypes) =>{
       },
       items: {
         type: DataTypes.STRING,
-        allowNull: false,
         get(){
           return this.getDataValue('items').split(';')
         },
@@ -24,18 +24,23 @@ module.exports = (sequelize, DataTypes) =>{
           this.setDataValue('items', val.join(';'))
         }
       },
-      isPaid: {
+        isPaid: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-
       payment_type: {
         type: DataTypes.ENUM,
-        values: ["pay-now", "on-delivery"]
+        values: ["pay-now", "on-delivery"],
+        defaultValue: "on-delivery"
       },
       order_cost: {
         type: DataTypes.INTEGER,
         defaultValue: 0
+      },
+      status:{
+        type: DataTypes.ENUM,
+        values: ["canceled", "active"],
+        defaultValue: "active"
       }
     },
     {

@@ -104,13 +104,6 @@
                     "field": "order_cost",
                     "seqType": "Sequelize.INTEGER"
                 },
-                "status": {
-                    "defaultValue": {
-                        "value": "active"
-                    },
-                    "field": "status",
-                    "seqType": "Sequelize.ENUM('canceled', 'active')"
-                },
                 "created_at": {
                     "allowNull": false,
                     "field": "created_at",
@@ -335,5 +328,5 @@
             "indexes": []
         }
     },
-    "revision": 10
+    "revision": 9
 }
