@@ -17,20 +17,6 @@ router.post(
     authorize(),
     addProductToInventoryController
 )
-// router.patch(
-//     '/:id/upload-image',
-//     validateRequest(uploadProductImageSchema, "params"),
-//     authorize(),
-//     upload.single("picture"),
-//     uploadProductImagesController
-// )
-
-// router.delete(
-//     '/:id',
-//     validateRequest(removeProductSchema, "params"),
-//     authorize(),
-//     removeProductController
-// )
 
 
 module.exports = router
