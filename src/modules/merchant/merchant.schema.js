@@ -2,7 +2,7 @@ const Joi = require('joi').extend(require('@joi/date'))
 Joi.objectId = require("joi-objectid")(Joi);
 
 exports.registerMerchantSchema = Joi.object().keys({
-    fullName: Joi.string().required(),
+    business_name: Joi.string().required(),
     email: Joi.string().required(),
     password: Joi.string().required(),
     phone_number: Joi.string().required() 
@@ -20,3 +20,7 @@ exports.loginMerchantSchema = Joi.object().keys({
 })
      .xor("email", "phone_number")
     .label("field");
+
+// exports.uploadBrandImageSchema = Joi.object().keys({
+// //     id: Joi.string().required(),
+// // })

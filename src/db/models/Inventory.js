@@ -1,12 +1,12 @@
 const {Model} = require('sequelize')
 
 module.exports = (sequelize, DataTypes) =>{
-  class Product extends Model {
+  class Inventory extends Model {
     static associate(models){
         this.belongsTo(models.Merchant, {as: 'Merchant'})
     }
   }
-  Product.init(
+  Inventory.init(
     {
       id: {
         primaryKey: true,
@@ -51,14 +51,17 @@ module.exports = (sequelize, DataTypes) =>{
       ratings: {
         type: DataTypes.INTEGER
       },
+      invertory_owner:{
+        type: DataTypes.STRING
+      }
     },
     {
       sequelize,
-      modelName: "Product",
+      modelName: "Inventory",
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
     }
   )
-  return Product
+  return Inventory
 }

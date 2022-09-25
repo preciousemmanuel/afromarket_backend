@@ -1,5 +1,7 @@
 const models = require('../../db/models')
 var Sequelize = require('sequelize')
+const randomString = require('../../common/helpers/randString')
+
 
 const {
     sequelize,
@@ -39,21 +41,17 @@ exports.createOrder = async (user, data) =>{
                 total: (Number(product.price))*(Number(item.quantity_ordered)),
                 OrderId:newOrder.id
             })
-
             const orderId = ordered_item.id
             ordered_items.push(orderId)
             total_price += Number(ordered_item.total)
         }
-        console.log(ordered_items)
-        console.log(total_price);
-        
-        console.log();
-        
+        const tracking_id = 'AFRM'+randomString()
 
         await Order.update(
             {
                 items: ordered_items,
                 order_cost: total_price,
+                trackingId: tracking_id
             },
             {where: {id:newOrder.id}}
         )

@@ -1,7 +1,8 @@
 const models = require('../../db/models')
 var Sequelize = require('sequelize')
+const imageUploader = require('../../common/helpers/cloudImageUpload')
 const {hashPassword, comparePassword} = require('../../common/helpers/password')
-const {jwtDecode, jwtSign, jwtVerify} = require('../../common/helpers/token')
+const {jwtSign} = require('../../common/helpers/token')
 const {
     sequelize,
     Merchant
@@ -74,7 +75,7 @@ exports.loginMerchant = async(user, data) => {
             {where: {id: user.id}}
         )
         const loginMerchant = await Merchant.findOne({
-            attributes:['email','fullname', 'id', 'phone_number'],
+            attributes:['email','business_name', 'id', 'phone_number'],
             where: {id:user.id}
         })
 
@@ -89,6 +90,44 @@ exports.loginMerchant = async(user, data) => {
         return{
             error: true,
             message: error.message|| "Unable to log in merchant at the moment",
+            data: null
+        }
+    }
+}
+
+exports.uploadBrandImage = async(payload) => {
+    try {
+        const {merchantId, file } = payload
+        const url = await imageUploader(file)
+        if(!url){
+            return{
+                code: 400,
+                status: "error",
+                message: "failed to upload brand image",
+                data: null
+            }
+        }
+        await Merchant.update(
+            {brand_image: url},
+            {where:{id: merchantId}}
+        )
+  
+        const updatedMerchant = await Merchant.findOne({
+            attributes:['email','business_name', 'id', 'phone_number', 'brand_image'],
+            where:{id: merchantId}
+        })
+
+        return{
+            error: false,
+            message: 'Brand image upload successful',
+            data:updatedMerchant
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable toupload brand image at the moment",
             data: null
         }
     }

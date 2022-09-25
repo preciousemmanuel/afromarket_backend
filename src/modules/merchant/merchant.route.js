@@ -1,13 +1,17 @@
 const {Router} = require('express')
+const { authorize } = require('../../common/middlewares/authorize')
 const { authMerchLogin } = require('../../common/middlewares/authorizeLogin')
 const validateRequest = require('../../common/middlewares/validateRequest')
+const upload = require('../../common/config/multer')
 const { 
 registerMerchantController,
-loginMerchantController
+loginMerchantController,
+uploadBrandImageController
 } = require('./merchant.controller')
 const {
  registerMerchantSchema,
- loginMerchantSchema
+ loginMerchantSchema,
+ uploadBrandImageSchema
 } = require('./merchant.schema')
 
 const router = Router()
@@ -24,5 +28,11 @@ router.post(
     loginMerchantController
 )
 
+router.patch(
+    '/upload-image',
+    authorize(),
+    upload.single("picture"),
+    uploadBrandImageController
+)
 
 module.exports = router

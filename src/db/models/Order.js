@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) =>{
   class Order extends Model {
     static associate(models){
       this.belongsTo(models.User, {as: "User"})
+      this.belongsTo(models.Tracker, {as: "Tracker"})
       this.hasMany(models.OrderedItem, {as: "OrderedItem"})
     }
   }
@@ -37,10 +38,28 @@ module.exports = (sequelize, DataTypes) =>{
         type: DataTypes.INTEGER,
         defaultValue: 0
       },
+      delivery_type:{
+        type: DataTypes.ENUM,
+        values: ['door_delivery', 'pickup_station'],
+        defaultValue: 'door_delivery'
+      },
+      delivery_address:{
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      delivery_date:{
+        type: DataTypes.DATE
+      },
+      customer_contact:{
+        type: DataTypes.STRING
+      },
       status:{
         type: DataTypes.ENUM,
-        values: ["canceled", "active"],
+        values: ["canceled", "active","delivered", "disputed"],
         defaultValue: "active"
+      },
+      trackingId:{
+        type: DataTypes.STRING
       }
     },
     {
