@@ -5,11 +5,12 @@ const upload = require('../../common/config/multer')
 const { 
     uploadProductController,
     removeProductController,
-    uploadProductImagesController
+    uploadProductImagesController,
+    getSingleProductController
 } = require('./product.controller')
 const {
  uploadProductSchema,
- removeProductSchema,
+ singleProductSchema,
  uploadProductImageSchema
 } = require('./product.schema')
 
@@ -25,13 +26,19 @@ router.patch(
     '/:id/upload-image',
     validateRequest(uploadProductImageSchema, "params"),
     authorize(),
-    upload.single("picture"),
+    upload.single("image"),
     uploadProductImagesController
 )
 
+router.get(
+    '/:id',
+    validateRequest(singleProductSchema, "params"),
+    getSingleProductController
+) 
+
 router.delete(
     '/:id',
-    validateRequest(removeProductSchema, "params"),
+    validateRequest(singleProductSchema, "params"),
     authorize(),
     removeProductController
 )

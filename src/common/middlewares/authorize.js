@@ -41,12 +41,10 @@ exports.authorize = () => async (req, _, next) => {
       );
     }
     if (merchant) {
-      console.log(merchant);
       req.userId = merchant.id;
       req.user = merchant;
       next();
     }else if(user) {
-      console.log(user);
       req.userId = user.id
       req.user = user
       next()
@@ -62,7 +60,6 @@ exports.authorize = () => async (req, _, next) => {
       );
     }
   } catch (err) {
-    console.log(err);
     next(
       createError(HTTP.BAD_REQUEST, [
         {

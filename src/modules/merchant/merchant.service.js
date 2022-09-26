@@ -3,6 +3,7 @@ var Sequelize = require('sequelize')
 const imageUploader = require('../../common/helpers/cloudImageUpload')
 const {hashPassword, comparePassword} = require('../../common/helpers/password')
 const {jwtSign} = require('../../common/helpers/token')
+const cloudinary = require('../../common/config/cloudinary')
 const {
     sequelize,
     Merchant
@@ -14,16 +15,16 @@ exports.registerMerchant = async (data) =>{
         if(data.password){
             password = hashPassword(data.password)
         }
-        const existingMerchant = await Merchant.findAll({
+        const existingMerchant = await Merchant.findOne({
             where:{
                 email: data.email
             }
         })
 
-        if(!existingMerchant){
+        if(existingMerchant){
             return{
                 error: true,
-                message: 'Email already exist on the server',
+                message: 'Email already registered on the server',
                 data: null
             }
         }
@@ -99,6 +100,7 @@ exports.uploadBrandImage = async(payload) => {
     try {
         const {merchantId, file } = payload
         const url = await imageUploader(file)
+        // const {url} = await cloudinary.uploader.upload(file)
         if(!url){
             return{
                 code: 400,

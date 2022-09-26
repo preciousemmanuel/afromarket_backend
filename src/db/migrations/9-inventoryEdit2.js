@@ -5,25 +5,25 @@ var Sequelize = require('sequelize');
 /**
  * Actions summary:
  *
- * addColumn "trackingId" to table "Orders"
+ * addColumn "product_id" to table "Inventories"
  *
  **/
 
 var info = {
-    "revision": 11,
-    "name": "noname",
-    "created": "2022-09-22T09:23:00.970Z",
+    "revision": 9,
+    "name": "inventoryEdit2",
+    "created": "2022-09-26T11:43:50.345Z",
     "comment": ""
 };
 
 var migrationCommands = [{
     fn: "addColumn",
     params: [
-        "Orders",
-        "trackingId",
+        "Inventories",
+        "product_id",
         {
-            "type": Sequelize.STRING,
-            "field": "trackingId"
+            "type": Sequelize.INTEGER,
+            "field": "product_id"
         }
     ]
 }];

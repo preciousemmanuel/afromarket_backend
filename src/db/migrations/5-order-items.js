@@ -5,79 +5,52 @@ var Sequelize = require('sequelize');
 /**
  * Actions summary:
  *
- * createTable "Inventories", deps: [Merchants]
+ * createTable "OrderedItems", deps: [Orders]
  *
  **/
 
 var info = {
-    "revision": 15,
-    "name": "inventoryModel",
-    "created": "2022-09-25T20:11:25.053Z",
+    "revision": 5,
+    "name": "order-items",
+    "created": "2022-09-26T10:06:13.201Z",
     "comment": ""
 };
 
 var migrationCommands = [{
     fn: "createTable",
     params: [
-        "Inventories",
+        "OrderedItems",
         {
             "id": {
-                "type": Sequelize.INTEGER,
+                "type": Sequelize.UUID,
                 "field": "id",
-                "autoIncrement": true,
+                "defaultValue": Sequelize.UUIDV4,
                 "unique": true,
                 "primaryKey": true
             },
-            "name": {
-                "type": Sequelize.STRING,
-                "field": "name"
-            },
-            "picture": {
-                "type": Sequelize.STRING,
-                "field": "picture",
-                "allowNull": false
-            },
-            "picture_2": {
-                "type": Sequelize.STRING,
-                "field": "picture_2",
-                "allowNull": false
-            },
-            "picture_3": {
-                "type": Sequelize.STRING,
-                "field": "picture_3",
-                "allowNull": false
-            },
-            "description": {
-                "type": Sequelize.STRING,
-                "field": "description",
-                "allowNull": false
-            },
-            "category": {
-                "type": Sequelize.STRING,
-                "field": "category",
-                "allowNull": false
-            },
-            "quantity_available": {
+            "product_id": {
                 "type": Sequelize.INTEGER,
-                "field": "quantity_available",
+                "field": "product_id"
+            },
+            "product_name": {
+                "type": Sequelize.STRING,
+                "field": "product_name",
+                "allowNull": false
+            },
+            "quantity_ordered": {
+                "type": Sequelize.INTEGER,
+                "field": "quantity_ordered",
                 "defaultValue": 1
             },
             "price": {
                 "type": Sequelize.INTEGER,
-                "field": "price"
-            },
-            "isapproved": {
-                "type": Sequelize.BOOLEAN,
-                "field": "isapproved",
+                "field": "price",
                 "defaultValue": false
             },
-            "ratings": {
+            "total": {
                 "type": Sequelize.INTEGER,
-                "field": "ratings"
-            },
-            "invertory_owner": {
-                "type": Sequelize.STRING,
-                "field": "invertory_owner"
+                "field": "total",
+                "defaultValue": false
             },
             "created_at": {
                 "type": Sequelize.DATE,
@@ -89,13 +62,13 @@ var migrationCommands = [{
                 "field": "updated_at",
                 "allowNull": false
             },
-            "MerchantId": {
+            "OrderId": {
                 "type": Sequelize.UUID,
-                "field": "MerchantId",
+                "field": "OrderId",
                 "onUpdate": "CASCADE",
                 "onDelete": "SET NULL",
                 "references": {
-                    "model": "Merchants",
+                    "model": "Orders",
                     "key": "id"
                 },
                 "allowNull": true

@@ -10,33 +10,28 @@
                     "field": "id",
                     "seqType": "Sequelize.INTEGER"
                 },
+                "product_id": {
+                    "field": "product_id",
+                    "seqType": "Sequelize.INTEGER"
+                },
                 "name": {
                     "field": "name",
                     "seqType": "Sequelize.STRING"
                 },
                 "picture": {
-                    "allowNull": false,
                     "field": "picture",
                     "seqType": "Sequelize.STRING"
                 },
                 "picture_2": {
-                    "allowNull": false,
                     "field": "picture_2",
                     "seqType": "Sequelize.STRING"
                 },
                 "picture_3": {
-                    "allowNull": false,
                     "field": "picture_3",
                     "seqType": "Sequelize.STRING"
                 },
                 "description": {
-                    "allowNull": false,
                     "field": "description",
-                    "seqType": "Sequelize.STRING"
-                },
-                "category": {
-                    "allowNull": false,
-                    "field": "category",
                     "seqType": "Sequelize.STRING"
                 },
                 "quantity_available": {
@@ -61,8 +56,8 @@
                     "field": "ratings",
                     "seqType": "Sequelize.INTEGER"
                 },
-                "invertory_owner": {
-                    "field": "invertory_owner",
+                "inventory_owner": {
+                    "field": "inventory_owner",
                     "seqType": "Sequelize.STRING"
                 },
                 "created_at": {
@@ -353,6 +348,40 @@
             },
             "indexes": []
         },
+        "Categories": {
+            "tableName": "Categories",
+            "schema": {
+                "id": {
+                    "primaryKey": true,
+                    "unique": true,
+                    "defaultValue": {
+                        "internal": true,
+                        "value": "Sequelize.UUIDV4"
+                    },
+                    "field": "id",
+                    "seqType": "Sequelize.UUID"
+                },
+                "name": {
+                    "field": "name",
+                    "seqType": "Sequelize.STRING"
+                },
+                "description": {
+                    "field": "description",
+                    "seqType": "Sequelize.STRING"
+                },
+                "created_at": {
+                    "allowNull": false,
+                    "field": "created_at",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updated_at": {
+                    "allowNull": false,
+                    "field": "updated_at",
+                    "seqType": "Sequelize.DATE"
+                }
+            },
+            "indexes": []
+        },
         "Products": {
             "tableName": "Products",
             "schema": {
@@ -368,28 +397,19 @@
                     "seqType": "Sequelize.STRING"
                 },
                 "picture": {
-                    "allowNull": false,
                     "field": "picture",
                     "seqType": "Sequelize.STRING"
                 },
                 "picture_2": {
-                    "allowNull": false,
                     "field": "picture_2",
                     "seqType": "Sequelize.STRING"
                 },
                 "picture_3": {
-                    "allowNull": false,
                     "field": "picture_3",
                     "seqType": "Sequelize.STRING"
                 },
                 "description": {
-                    "allowNull": false,
                     "field": "description",
-                    "seqType": "Sequelize.STRING"
-                },
-                "category": {
-                    "allowNull": false,
-                    "field": "category",
                     "seqType": "Sequelize.STRING"
                 },
                 "quantity_available": {
@@ -433,6 +453,17 @@
                     "onDelete": "SET NULL",
                     "onUpdate": "CASCADE",
                     "field": "MerchantId",
+                    "seqType": "Sequelize.UUID"
+                },
+                "CategoryId": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "Categories",
+                        "key": "id"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "CategoryId",
                     "seqType": "Sequelize.UUID"
                 }
             },
@@ -553,5 +584,5 @@
             "indexes": []
         }
     },
-    "revision": 15
+    "revision": 10
 }

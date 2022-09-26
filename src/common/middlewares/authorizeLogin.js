@@ -43,11 +43,7 @@ exports.authMerchLogin = async (req, _, next) => {
   let email = String(req.body.email).toLowerCase();
   try {
     var merchant = await Merchant.findOne({
-      [Op.or]:[
-        {where: { email: email}},
-        {where: { phone_number: email}}
-      ]      
-     
+        where: { email: email},    
     });
     if (!merchant) {
       return next(
@@ -61,6 +57,7 @@ exports.authMerchLogin = async (req, _, next) => {
       );
     }else {
       req.user = merchant;
+      console.log(merchant)
       return next();
     }
    

@@ -19,7 +19,7 @@ exports.registerUser = async (data) =>{
             }
         })
 
-        if(!existingUser){
+        if(existingUser){
             return{
                 error: true,
                 message: 'Email already exist on the server',
@@ -42,7 +42,6 @@ exports.registerUser = async (data) =>{
     } catch (error) {
         console.log(error)
         return{
-            error: true,
             message: error.message|| "Unable to register user at the moment",
             data: null
         }

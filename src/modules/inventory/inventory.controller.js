@@ -32,60 +32,63 @@ exports.addProductToInventoryController = async (req, res, next) => {
     }
 }
 
-// exports.uploadProductImagesController = async (req, res, next) => {
-//     try {
-//         const {error, message, data} = await ProductService.uploadProductImages({
-//             product_id: req.params.id,
-//             file: req.file.path
-//         })
+exports.getSingleProductFromInventoryController = async (req, res, next) => {
+    try {
+        const {error, message, data} = await InventoryService.singleInventoryItem({
+            inventory_owner: req.userId, 
+            inventory_id: req.params.id,
+        })
 
-//         if (error) {
-//         return next(
-//             createError(HTTP.BAD_REQUEST, [
-//             {
-//                 status: RESPONSE.ERROR,
-//                 message,
-//                 statusCode:
-//                 data instanceof Error ? HTTP.SERVER_ERROR : HTTP.BAD_REQUEST,
-//                 data,
-//             },
-//             ])
-//         );
-//         }
-//         return createResponse(message, data)(res, HTTP.CREATED);
-//     } catch (error) {
-//         console.error(error);
+        if (error) {
+        return next(
+            createError(HTTP.BAD_REQUEST, [
+            {
+                status: RESPONSE.ERROR,
+                message,
+                statusCode:
+                data instanceof Error ? HTTP.SERVER_ERROR : HTTP.BAD_REQUEST,
+                data,
+            },
+            ])
+        );
+        }
+        return createResponse(message, data)(res, HTTP.CREATED);
+    } catch (error) {
+        console.error(error);
 
-//         return next(createError.InternalServerError(error));
-//     }
-// }
+        return next(createError.InternalServerError(error));
+    }
+}
 
 
-// exports.removeProductController = async (req, res, next) => {
-//     try {
-//         const {error, message, data} = await ProductService.removeProduct(
-//             req.user, 
-//             req.params
-//         )
+exports.removeProductFromInventoryController = async (req, res, next) => {
+    try {
+        const {error, message, data} = await InventoryService.removeProductFromInventory({
+            inventory_owner: req.userId, 
+            inventory_id: req.params.id,
+        })
 
-//         if (error) {
-//         return next(
-//             createError(HTTP.BAD_REQUEST, [
-//             {
-//                 status: RESPONSE.ERROR,
-//                 message,
-//                 statusCode:
-//                 data instanceof Error ? HTTP.SERVER_ERROR : HTTP.BAD_REQUEST,
-//                 data,
-//             },
-//             ])
-//         );
-//         }
-//         return createResponse(message, data)(res, HTTP.CREATED);
-//     } catch (error) {
-//         console.error(err);
+        if (error) {
+        return next(
+            createError(HTTP.BAD_REQUEST, [
+            {
+                status: RESPONSE.ERROR,
+                message,
+                statusCode:
+                data instanceof Error ? HTTP.SERVER_ERROR : HTTP.BAD_REQUEST,
+                data,
+            },
+            ])
+        );
+        }
+        return createResponse(message, data)(res, HTTP.CREATED);
+    } catch (error) {
+        console.error(error);
 
-//         return next(createError.InternalServerError(err));
-//     }
-// }
+        return next(createError.InternalServerError(error));
+    }
+}
+
+
+
 

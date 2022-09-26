@@ -21,6 +21,3 @@ exports.loginMerchantSchema = Joi.object().keys({
      .xor("email", "phone_number")
     .label("field");
 
-// exports.uploadBrandImageSchema = Joi.object().keys({
-// //     id: Joi.string().required(),
-// // })
