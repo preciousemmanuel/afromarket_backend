@@ -12,3 +12,7 @@ exports.uploadProductSchema = Joi.object().keys({
 exports.removeProductSchema = Joi.object().keys({
     id: Joi.string().required(),
 })
+
+exports.uploadProductImageSchema = Joi.object().keys({
+    id: Joi.string().required(),
+})

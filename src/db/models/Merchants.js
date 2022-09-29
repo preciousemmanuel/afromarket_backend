@@ -3,7 +3,9 @@ const {Model} = require('sequelize')
 module.exports = (sequelize, DataTypes) =>{
   class Merchant extends Model {
     static associate(models){
-        this.hasMany(models.Product, {as: 'Product'})
+        this.hasMany(models.Product, {as: 'Product'}),
+        this.hasMany(models.Inventory, {as: 'Inventory'})
+
     }
   }
   Merchant.init(
@@ -14,7 +16,27 @@ module.exports = (sequelize, DataTypes) =>{
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4
       },
-      fullName: {
+      business_name: {
+        type: DataTypes.STRING
+      },
+      business_type: {
+        type: DataTypes.ENUM,
+        values: ['public limited company', 'private limited company'],
+        defaultValue: 'public limited company'
+      },
+      business_description: {
+        type: DataTypes.STRING,
+      },
+      bank_verification_number:{
+        type: DataTypes.INTEGER,
+      },
+      cac_document:{
+        type: DataTypes.STRING,
+      },
+      tax_id_number:{
+        type: DataTypes.INTEGER
+      },
+      brand_image:{
         type: DataTypes.STRING
       },
       email: {

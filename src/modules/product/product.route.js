@@ -1,13 +1,16 @@
 const {Router} = require('express')
 const { authorize } = require('../../common/middlewares/authorize')
 const validateRequest = require('../../common/middlewares/validateRequest')
+const upload = require('../../common/config/multer')
 const { 
     uploadProductController,
-    removeProductController
+    removeProductController,
+    uploadProductImagesController
 } = require('./product.controller')
 const {
  uploadProductSchema,
- removeProductSchema
+ removeProductSchema,
+ uploadProductImageSchema
 } = require('./product.schema')
 
 const router = Router()
@@ -18,6 +21,14 @@ router.post(
     authorize(),
     uploadProductController
 )
+router.patch(
+    '/:id/upload-image',
+    validateRequest(uploadProductImageSchema, "params"),
+    authorize(),
+    upload.single("picture"),
+    uploadProductImagesController
+)
+
 router.delete(
     '/:id',
     validateRequest(removeProductSchema, "params"),

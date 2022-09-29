@@ -39,7 +39,9 @@ module.exports = (sequelize, DataTypes) =>{
       refreshTokens: {
         type: DataTypes.STRING
       },
-
+      delivery_address:{
+        type: DataTypes.STRING
+      }
     },
 
     {
