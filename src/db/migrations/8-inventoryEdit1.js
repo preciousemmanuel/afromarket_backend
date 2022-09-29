@@ -5,29 +5,34 @@ var Sequelize = require('sequelize');
 /**
  * Actions summary:
  *
- * addColumn "status" to table "Orders"
+ * removeColumn "invertory_owner" from table "Inventories"
+ * addColumn "inventory_owner" to table "Inventories"
  *
  **/
 
 var info = {
-    "revision": 10,
-    "name": "orderEdit3",
-    "created": "2022-09-21T12:39:07.372Z",
+    "revision": 8,
+    "name": "inventoryEdit1",
+    "created": "2022-09-26T11:35:53.688Z",
     "comment": ""
 };
 
 var migrationCommands = [{
-    fn: "addColumn",
-    params: [
-        "Orders",
-        "status",
-        {
-            "type": Sequelize.ENUM('canceled', 'active'),
-            "field": "status",
-            "defaultValue": "active"
-        }
-    ]
-}];
+        fn: "removeColumn",
+        params: ["Inventories", "invertory_owner"]
+    },
+    {
+        fn: "addColumn",
+        params: [
+            "Inventories",
+            "inventory_owner",
+            {
+                "type": Sequelize.STRING,
+                "field": "inventory_owner"
+            }
+        ]
+    }
+];
 
 module.exports = {
     pos: 0,

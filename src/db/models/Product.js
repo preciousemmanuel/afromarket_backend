@@ -3,7 +3,8 @@ const {Model} = require('sequelize')
 module.exports = (sequelize, DataTypes) =>{
   class Product extends Model {
     static associate(models){
-        this.belongsTo(models.Merchant, {as: 'Merchant'})
+        this.belongsTo(models.Merchant, {as: 'Merchant'}),
+        this.belongsTo(models.Category, {as: "Category"})
     }
   }
   Product.init(
@@ -19,23 +20,16 @@ module.exports = (sequelize, DataTypes) =>{
       },
       picture:{
         type: DataTypes.STRING,
-        allowNull: false
+        
       },
       picture_2:{
         type: DataTypes.STRING,
-        allowNull: false
       },
       picture_3:{
         type: DataTypes.STRING,
-        allowNull: false
       },
       description: {
         type: DataTypes.STRING,
-        allowNull:false
-      },
-      category: {
-        type: DataTypes.STRING,
-        allowNull:false
       },
       quantity_available: {
         type: DataTypes.INTEGER,

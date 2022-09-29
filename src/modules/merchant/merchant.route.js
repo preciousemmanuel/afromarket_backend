@@ -11,7 +11,6 @@ uploadBrandImageController
 const {
  registerMerchantSchema,
  loginMerchantSchema,
- uploadBrandImageSchema
 } = require('./merchant.schema')
 
 const router = Router()
@@ -31,7 +30,7 @@ router.post(
 router.patch(
     '/upload-image',
     authorize(),
-    upload.single("picture"),
+    upload.single("image"),
     uploadBrandImageController
 )
 

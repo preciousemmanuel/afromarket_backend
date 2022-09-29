@@ -5,7 +5,6 @@ module.exports = (sequelize, DataTypes) =>{
     static associate(models){
       this.belongsTo(models.User, {as: "User"})
       this.belongsTo(models.Tracker, {as: "Tracker"})
-      this.hasMany(models.OrderedItem, {as: "OrderedItem"})
     }
   }
   Order.init(

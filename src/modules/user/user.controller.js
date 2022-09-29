@@ -17,7 +17,7 @@ exports.registerUserController = async (req, res, next) => {
                 status: RESPONSE.ERROR,
                 message,
                 statusCode:
-                data instanceof Error ? HTTP.SERVER_ERROR : HTTP.BAD_REQUEST,
+                    data instanceof Error ? HTTP.SERVER_ERROR : HTTP.BAD_REQUEST,
                 data,
             },
             ])

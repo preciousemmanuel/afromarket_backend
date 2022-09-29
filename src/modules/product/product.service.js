@@ -10,7 +10,7 @@ const {
 
 exports.uploadProduct = async (payload) =>{
     try {
-        const {user, data, file} = payload
+        const {user, data} = payload
         const existingProduct = await Product.findOne({
             where:{
                 MerchantId: user.id,
@@ -29,7 +29,7 @@ exports.uploadProduct = async (payload) =>{
             {
                 ...data,
                 MerchantId:user.id,
-                picture: url
+               
             },
             {raw: true}
         )
@@ -83,6 +83,38 @@ exports.uploadProductImages = async(payload)=>{
     }
 
 
+}
+
+exports.getSingleProduct = async (data) =>{
+    try {
+        const existingProduct = await Product.findOne({
+            where:{
+                id: Number(data.id)
+            }
+        })
+
+        if(!existingProduct){
+            return{
+                error: true,
+                message: 'Cannot find selected product',
+                data: null
+            }
+        }
+        return {
+            error: false,
+            message: "Product retreived successfully",
+            data: existingProduct
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to retreive product at the moment",
+            data: null
+        }
+        
+    }
 }
 
 exports.removeProduct = async (user, data) =>{

@@ -25,16 +25,15 @@ exports.registerMerchantController = async (req, res, next) => {
         }
         return createResponse(message, data)(res, HTTP.CREATED);
     } catch (error) {
-        console.error(err);
+        console.error(error);
 
-        return next(createError.InternalServerError(err));
+        return next(createError.InternalServerError(error));
     }
 }
 
 exports.loginMerchantController = async (req, res, next) => {
     try {
         const {error, message, data} = await MerchantService.loginMerchant(req.user,req.body)
-        // console.log(req.user);
         if (error) {
         return next(
             createError(HTTP.BAD_REQUEST, [
@@ -62,7 +61,6 @@ exports.uploadBrandImageController = async (req, res, next) => {
             merchantId: req.userId,
             file: req.file.path
         })
-        // console.log(req.user);
         if (error) {
         return next(
             createError(HTTP.BAD_REQUEST, [
@@ -78,8 +76,8 @@ exports.uploadBrandImageController = async (req, res, next) => {
         }
         return createResponse(message, data)(res, HTTP.CREATED);
     } catch (error) {
-        console.error(err);
+        // console.error(error);
 
-        return next(createError.InternalServerError(err));
+        return next(createError.InternalServerError(error));
     }
 }
