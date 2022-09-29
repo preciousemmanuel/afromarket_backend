@@ -17,7 +17,8 @@ exports.registerMerchant = async (data) =>{
         }
         const existingMerchant = await Merchant.findOne({
             where:{
-                email: data.email
+                email: data.email,
+                deleted: false
             }
         })
 
@@ -73,11 +74,11 @@ exports.loginMerchant = async(user, data) => {
         const refreshToken = jwtSign(user.id)
         await Merchant.update(
             {refreshTokens: refreshToken},
-            {where: {id: user.id}}
+            {where: {id: user.id, deleted: false}}
         )
         const loginMerchant = await Merchant.findOne({
             attributes:['email','business_name', 'id', 'phone_number'],
-            where: {id:user.id}
+            where: {id:user.id, deleted: false}
         })
 
         return{
@@ -111,12 +112,17 @@ exports.uploadBrandImage = async(payload) => {
         }
         await Merchant.update(
             {brand_image: url},
-            {where:{id: merchantId}}
+            {where:
+                {
+                    id: merchantId,
+                    deleted: false
+                }
+            }
         )
   
         const updatedMerchant = await Merchant.findOne({
             attributes:['email','business_name', 'id', 'phone_number', 'brand_image'],
-            where:{id: merchantId}
+            where:{id: merchantId, deleted: false}
         })
 
         return{

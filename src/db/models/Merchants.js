@@ -63,6 +63,10 @@ module.exports = (sequelize, DataTypes) =>{
       },
       ratings: {
         type: DataTypes.INTEGER
+      },
+      deleted:{
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
       }
   
     },

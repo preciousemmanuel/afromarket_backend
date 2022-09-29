@@ -3,7 +3,9 @@ const {Model} = require('sequelize')
 module.exports = (sequelize, DataTypes) =>{
   class OrderedItem extends Model {
     static associate(models){
-      this.belongsTo(models.Order, {as: "Order"})
+      this.belongsTo(models.Order, {as: "Order"}),
+      this.belongsTo(models.Merchant, {as: "Merchant"})
+      this.belongsTo(models.Product, {as: 'Product'})
     }
   }
   OrderedItem.init(
@@ -13,9 +15,6 @@ module.exports = (sequelize, DataTypes) =>{
         unique: true,
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4
-      },
-      product_id:{
-        type: DataTypes.INTEGER
       },
       product_name:{
         type: DataTypes.STRING,
@@ -33,6 +32,20 @@ module.exports = (sequelize, DataTypes) =>{
         type: DataTypes.INTEGER,
         defaultValue: false,
       },
+      deleted:{
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      resale: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      resale_profit:{
+        type: DataTypes.INTEGER
+      },
+      profit_owner: {
+        type: DataTypes.STRING
+      }
     },
     {
       sequelize,

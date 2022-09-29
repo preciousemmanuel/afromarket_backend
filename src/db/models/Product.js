@@ -4,7 +4,8 @@ module.exports = (sequelize, DataTypes) =>{
   class Product extends Model {
     static associate(models){
         this.belongsTo(models.Merchant, {as: 'Merchant'}),
-        this.belongsTo(models.Category, {as: "Category"})
+        this.belongsTo(models.Category, {as: "Category"}),
+        this.hasMany(models.Inventory, {as: "Inventory"})
     }
   }
   Product.init(
@@ -12,8 +13,8 @@ module.exports = (sequelize, DataTypes) =>{
       id: {
         primaryKey: true,
         unique: true,
-        type: DataTypes.INTEGER,
-        autoIncrement: true
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4
       },
       name: {
         type: DataTypes.STRING
@@ -45,6 +46,15 @@ module.exports = (sequelize, DataTypes) =>{
       ratings: {
         type: DataTypes.INTEGER
       },
+      status:{
+        type: DataTypes.ENUM,
+        values: ['available', 'out of stock'],
+        defaultValue: 'available'
+      },
+      deleted:{
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      }
     },
     {
       sequelize,

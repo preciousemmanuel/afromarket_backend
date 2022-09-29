@@ -5,3 +5,11 @@ exports.singleInventoryItemSchema = Joi.object().keys({
     id: Joi.string().required(),
 })
 
+exports.inventoryPriceSchema = Joi.object().keys({
+    price: Joi.number().required(),
+})
+
+exports.getAllProductSchema = Joi.object({
+  page: Joi.number().positive().optional(),
+  limit: Joi.number().positive().optional(),
+});

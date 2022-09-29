@@ -1,11 +1,12 @@
 const models = require('../../db/models')
 var Sequelize = require('sequelize')
-// const cloudinary = require('../../common/config/cloudinary')
 const imageUploader = require('../../common/helpers/cloudImageUpload')
+const {getPaginatedRecords} = require('../../common/helpers/paginate')
 
 const {
     sequelize,
-    Product
+    Product,
+    Inventory
 } = models
 
 exports.uploadProduct = async (payload) =>{
@@ -14,7 +15,8 @@ exports.uploadProduct = async (payload) =>{
         const existingProduct = await Product.findOne({
             where:{
                 MerchantId: user.id,
-                name: data.name
+                name: data.name,
+                deleted: false
             }
         })
 
@@ -28,8 +30,7 @@ exports.uploadProduct = async (payload) =>{
         const newProduct= await Product.create(
             {
                 ...data,
-                MerchantId:user.id,
-               
+                MerchantId:user.id,           
             },
             {raw: true}
         )
@@ -64,7 +65,13 @@ exports.uploadProductImages = async(payload)=>{
         }
         await Product.update(
             {picture: url},
-            {where:{id:product_id}}
+            {where:
+                {
+                    id:product_id,
+                    deleted: false
+                },
+                
+            }
         )
         const updatedProduct = await Product.findOne({id: product_id})
         return{
@@ -85,11 +92,12 @@ exports.uploadProductImages = async(payload)=>{
 
 }
 
-exports.getSingleProduct = async (data) =>{
+exports.getSingleProductByAUser = async (data) =>{
     try {
         const existingProduct = await Product.findOne({
             where:{
-                id: Number(data.id)
+                id: Number(data.id),
+                deleted: false
             }
         })
 
@@ -117,12 +125,12 @@ exports.getSingleProduct = async (data) =>{
     }
 }
 
-exports.removeProduct = async (user, data) =>{
+exports.getSingleProductByAMerchant = async (data) =>{
     try {
         const existingProduct = await Product.findOne({
             where:{
-                MerchantId: user.id,
-                id: Number(data.id)
+                id: Number(data.id),
+                deleted: false
             }
         })
 
@@ -133,16 +141,96 @@ exports.removeProduct = async (user, data) =>{
                 data: null
             }
         }
-        await Product.destroy({
+
+        const allInventoriesOfAProduct = await Inventory.findAll({
             where:{
+                ProductId: data.id,
+                deleted: false
+            }
+        })
+        return {
+            error: false,
+            message: "Product retreived successfully",
+            data: [existingProduct, allInventoriesOfAProduct]
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to retreive product at the moment",
+            data: null
+        }
+        
+    }
+}
+
+
+exports.getAllProducts = async (data) =>{
+    try {
+        const {limit, page} = data
+        const allProducts = await getPaginatedRecords(Product, {
+            limit: Number(limit),
+            page: Number(page),
+            selectedFields: ["id", "name", "picture", "description", "ratings", "price"]
+        })
+        return {
+            error: false,
+            message: "Product retreived successfully",
+            data: {
+                allProducts: allProducts,
+                pagination: allProducts.perPage
+            }
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to retreive product at the moment",
+            data: null
+        }
+        
+    }
+}
+
+
+exports.removeProduct = async (user, data) =>{
+    try {
+        const existingProduct = await Product.findOne({
+            where:{
+                MerchantId: user.id,
                 id: Number(data.id),
-                MerchantId:user.id
-            }   
+                deleted: false
+            }
+        })
+
+        if(!existingProduct){
+            return{
+                error: true,
+                message: 'Cannot find selected product',
+                data: null
+            }
+        }
+        await Product.update(
+                {deleted: true},
+                {
+                    where:{
+                        id: Number(data.id),
+                        MerchantId:user.id
+                    }   
+                }
+            )
+            const deletedProduct = await Product.findOne({
+                where:{
+                    MerchantId: user.id,
+                    id: Number(data.id)
+                }
             })
         return {
             error: false,
             message: "Product removed successfully",
-            data: null
+            data: deletedProduct
         }
 
     } catch (error) {
@@ -150,6 +238,36 @@ exports.removeProduct = async (user, data) =>{
         return{
             error: true,
             message: error.message|| "Unable to remove product at the moment",
+            data: null
+        }
+        
+    }
+
+}
+
+exports.getMyProductsByMerchant = async (data) =>{
+    try {
+        const {merchant_id, limit, page} = data
+        const allProducts = await getPaginatedRecords(Product, {
+            limit: Number(limit),
+            page: Number(page),
+            data: {MerchantId: merchant_id},
+            selectedFields: ["id", "name", "picture", "description", "ratings", "price", "deleted"]
+        })
+        return {
+            error: false,
+            message: "Product retreived successfully",
+            data: {
+                allProducts: allProducts,
+                pagination: allProducts.perPage
+            }
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to retreive product at the moment",
             data: null
         }
         

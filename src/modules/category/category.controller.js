@@ -2,13 +2,13 @@ const {HTTP} = require('../../common/constants/http')
 const {RESPONSE} = require('../../common/constants/response')
 const createError = require("../../common/helpers/createError");
 const { createResponse } = require("../../common/helpers/createResponse");
-const ProductService = require('./product.service')
+const CategoryService = require('./category.service')
 
-exports.uploadProductController = async (req, res, next) => {
+exports.getAllCategoriesController = async (req, res, next) => {
     try {
-        const {error, message, data} = await ProductService.uploadProduct({
-            user: req.user, 
-            data: req.body,
+        const {error, message, data} = await CategoryService.getAllCategories({
+            limit: req.query.limit, 
+            page: req.query.page,
         })
 
         if (error) {
@@ -60,11 +60,18 @@ exports.uploadProductImagesController = async (req, res, next) => {
     }
 }
 
-exports.getSingleProductyByAUserController = async (req, res, next) => {
+exports.getAllProductsInACategoryController = async (req, res, next) => {
     try {
-        const {error, message, data} = await ProductService.getSingleProductByAUser(
-            req.params
-        )
+        const {error, message, data} = await CategoryService.getAllProductsInACategory({
+            limit: req.query.limit,
+            page: req.query.page,
+            category_id: req.params.id
+        })
+
+        const allData = {
+            pagination: data.pagination,
+            products: data.allProducts
+        }
 
         if (error) {
         return next(
@@ -79,7 +86,7 @@ exports.getSingleProductyByAUserController = async (req, res, next) => {
             ])
         );
         }
-        return createResponse(message, data)(res, HTTP.CREATED);
+        return createResponse(message, allData)(res, HTTP.CREATED);
     } catch (error) {
         console.error(err);
 
