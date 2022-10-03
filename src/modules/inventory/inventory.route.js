@@ -4,10 +4,14 @@ const validateRequest = require('../../common/middlewares/validateRequest')
 const { 
  addProductToInventoryController,
  removeProductFromInventoryController,
- getSingleProductFromInventoryController
+ getSingleProductFromInventoryController,
+ getAllProductsFromMyInventoryController,
+ getAllInventoryController
 } = require('./inventory.controller')
 const {
-singleInventoryItemSchema
+singleInventoryItemSchema,
+getAllProductSchema,
+inventoryPriceSchema
 } = require('./inventory.schema')
 
 const router = Router()
@@ -15,19 +19,31 @@ const router = Router()
 router.post(
     '/add-new/:id',
     validateRequest(singleInventoryItemSchema, "params"),
+    validateRequest(inventoryPriceSchema, "body"),
     authorize(),
     addProductToInventoryController
 )
 
 router.get(
-    '/:id',
+    '/single/:id',
     validateRequest(singleInventoryItemSchema, "params"),
     authorize(),
    getSingleProductFromInventoryController
 )
 
+router.get(
+    '/my-all',
+    validateRequest(getAllProductSchema, "query"),
+    authorize(),
+    getAllProductsFromMyInventoryController
+)
 
-router.delete(
+router.get(
+    '/get-all',
+    validateRequest(getAllProductSchema, "query"),
+    getAllInventoryController
+)
+router.patch(
     '/remove/:id',
     validateRequest(singleInventoryItemSchema, "params"),
     authorize(),

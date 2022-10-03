@@ -1,5 +1,6 @@
 const models = require('../../db/models')
 var Sequelize = require('sequelize')
+const { getPaginatedRecords } = require('../../common/helpers/paginate')
 
 const {
     sequelize,
@@ -9,7 +10,7 @@ const {
 
 exports.addProductToInventory = async (data) =>{
     try {
-        const {merchant_id, product_id} = data
+        const {merchant_id, product_id, payload} = data
         const existingProduct = await Product.findOne({
              attributes: ['id', 'name', 'picture', 'picture_2', 'picture_3', 'description', 'quantity_available', 'price', 'isApproved', 'ratings', 'MerchantId', 'CategoryId', ],
             where:{
@@ -43,16 +44,18 @@ exports.addProductToInventory = async (data) =>{
         const newInventory= await Inventory.create(
             {
                 name: existingProduct.name,
-                product_id: existingProduct.id,
+                ProductId: existingProduct.id,
                 picture: existingProduct.picture,
                 picture_2: existingProduct.picture_2,
                 picture_3: existingProduct.picture_3,
                 description: existingProduct.description,
-                quanitity_available: existingProduct.quantity_available,
-                price: existingProduct.price,
+                quantity_available: existingProduct.quantity_available,
+                price: payload.price,
                 isApproved: existingProduct.isApproved,
                 ratings: existingProduct.ratings,
                 MerchantId: existingProduct.MerchantId,
+                CategoryId: existingProduct.CategoryId,
+                status: existingProduct.status,
                 inventory_owner: merchant_id 
             },
             {raw: true}
@@ -83,7 +86,9 @@ exports.singleInventoryItem = async (payload) =>{
             where:{
                 id: inventory_id,
                 inventory_owner,
-            }
+                deleted: false
+            },
+            // attributes:["id", "name", "picture", "description", "ratings", "price", "MerchantId"]
         })
 
 
@@ -120,6 +125,7 @@ exports.removeProductFromInventory = async (payload) =>{
             where:{
                 id: inventory_id,
                 inventory_owner,
+                deleted:false
             }
         })
 
@@ -131,7 +137,9 @@ exports.removeProductFromInventory = async (payload) =>{
                 data: null
             }
         } 
-        await Inventory.destroy({
+        await Inventory.update(
+            {deleted: true},
+            {
             where:{
                 id: inventory_id,
                 inventory_owner
@@ -142,6 +150,68 @@ exports.removeProductFromInventory = async (payload) =>{
             error: false,
             message: "Product removed from your inventory successfully",
             data: null
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to remove product from your inventory at the moment",
+            data: null
+        }
+        
+    }
+}
+
+exports.allMyInventories = async (payload) =>{
+    const {inventory_owner, limit, page} = payload
+    try {
+         const myInventories = await getPaginatedRecords(Inventory, {
+            limit: Number(limit),
+            page: Number(page),
+            data: {inventory_owner},
+            selectedFields: ["id", "name", "picture", "description", "ratings", "price", "MerchantId"]
+
+        })
+
+        return {
+            error: false,
+            message: "Inventories retreived successfully",
+            data: {
+                allInventories: myInventories,
+                pagination: myInventories.perPage
+            }
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to remove product from your inventory at the moment",
+            data: null
+        }
+        
+    }
+}
+
+exports.allInventories = async (payload) =>{
+    const { limit, page} = payload
+    try {
+         const myInventories = await getPaginatedRecords(Inventory, {
+            limit: Number(limit),
+            page: Number(page),
+            data: {},
+            selectedFields: ["id", "name", "picture", "description", "ratings", "price", "MerchantId", "inventory_owner"]
+
+        })
+
+        return {
+            error: false,
+            message: "Inventories retreived successfully",
+            data: {
+                allInventories: myInventories,
+                pagination: myInventories.perPage
+            }
         }
 
     } catch (error) {

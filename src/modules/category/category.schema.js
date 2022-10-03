@@ -17,7 +17,7 @@ exports.uploadProductImageSchema = Joi.object().keys({
     id: Joi.string().required(),
 })
 
-exports.getAllProductSchema = Joi.object({
+exports.getAllCategoriesSchema = Joi.object({
   page: Joi.number().positive().optional(),
   limit: Joi.number().positive().optional(),
 });

@@ -266,6 +266,17 @@
                     "onUpdate": "CASCADE",
                     "field": "UserId",
                     "seqType": "Sequelize.UUID"
+                },
+                "TrackerId": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "Trackers",
+                        "key": "id"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "TrackerId",
+                    "seqType": "Sequelize.UUID"
                 }
             },
             "indexes": []
@@ -573,5 +584,5 @@
             "indexes": []
         }
     },
-    "revision": 9
+    "revision": 10
 }

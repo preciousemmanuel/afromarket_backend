@@ -12,11 +12,7 @@ exports.authorizeLogin = async (req, _, next) => {
 
      
     var user = await User.findOne({
-      [Op.or]:[
-        {where: { email: email}},
-        {where: { phone_number: email}}
-      ]      
-     
+        where: { email: email},    
     });
     if (!user) {
       return next(

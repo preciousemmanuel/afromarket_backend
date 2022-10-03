@@ -19,7 +19,7 @@ exports.registerUser = async (data) =>{
             }
         })
 
-        if(existingUser){
+        if(existingUser.length > 0){
             return{
                 error: true,
                 message: 'Email already exist on the server',

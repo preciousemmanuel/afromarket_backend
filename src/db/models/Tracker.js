@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) =>{
       },
       trackingId:{
         type: DataTypes.STRING
+      },
+      deleted:{
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
       }
     },
     {

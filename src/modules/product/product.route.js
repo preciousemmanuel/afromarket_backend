@@ -1,17 +1,21 @@
 const {Router} = require('express')
-const { authorize } = require('../../common/middlewares/authorize')
+const { authorize, authorizeMerchant } = require('../../common/middlewares/authorize')
 const validateRequest = require('../../common/middlewares/validateRequest')
 const upload = require('../../common/config/multer')
 const { 
     uploadProductController,
     removeProductController,
     uploadProductImagesController,
-    getSingleProductController
+    getSingleProductyByAUserController,
+    getAllProductsController,
+    getMyProductsByMerchantController,
+    getSingleProductyByAMerchantController
 } = require('./product.controller')
 const {
  uploadProductSchema,
  singleProductSchema,
- uploadProductImageSchema
+ uploadProductImageSchema,
+ getAllProductSchema
 } = require('./product.schema')
 
 const router = Router()
@@ -25,21 +29,40 @@ router.post(
 router.patch(
     '/:id/upload-image',
     validateRequest(uploadProductImageSchema, "params"),
-    authorize(),
+    authorizeMerchant(),
     upload.single("image"),
     uploadProductImagesController
 )
 
 router.get(
-    '/:id',
+    '/get-one/:id',
     validateRequest(singleProductSchema, "params"),
-    getSingleProductController
+    getSingleProductyByAUserController
 ) 
 
-router.delete(
-    '/:id',
+router.get(
+    '/owned/:id',
     validateRequest(singleProductSchema, "params"),
+    getSingleProductyByAMerchantController
+) 
+
+router.get(
+    '/get-all',
+    validateRequest(getAllProductSchema, "query"),
+    getAllProductsController
+) 
+
+router.get(
+    '/my-all',
     authorize(),
+    validateRequest(getAllProductSchema, "query"),
+    getMyProductsByMerchantController
+) 
+
+router.post(
+    '/remove/:id',
+    validateRequest(singleProductSchema, "params"),
+    authorizeMerchant(),
     removeProductController
 )
 

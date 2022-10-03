@@ -1,5 +1,72 @@
 {
     "tables": {
+        "Disputes": {
+            "tableName": "Disputes",
+            "schema": {
+                "id": {
+                    "primaryKey": true,
+                    "unique": true,
+                    "defaultValue": {
+                        "internal": true,
+                        "value": "Sequelize.UUIDV4"
+                    },
+                    "field": "id",
+                    "seqType": "Sequelize.UUID"
+                },
+                "product_image": {
+                    "field": "product_image",
+                    "seqType": "Sequelize.STRING"
+                },
+                "reason": {
+                    "field": "reason",
+                    "seqType": "Sequelize.ENUM('Wrong Orer', 'Lost Order', 'Damaged Product', 'Fake Product')"
+                },
+                "status": {
+                    "defaultValue": {
+                        "value": "On_Going"
+                    },
+                    "field": "status",
+                    "seqType": "Sequelize.ENUM('Won', 'On_Going', 'Lost')"
+                },
+                "description": {
+                    "field": "description",
+                    "seqType": "Sequelize.STRING"
+                },
+                "created_at": {
+                    "allowNull": false,
+                    "field": "created_at",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updated_at": {
+                    "allowNull": false,
+                    "field": "updated_at",
+                    "seqType": "Sequelize.DATE"
+                },
+                "UserId": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "Users",
+                        "key": "id"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "UserId",
+                    "seqType": "Sequelize.UUID"
+                },
+                "OrderId": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "Orders",
+                        "key": "id"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "OrderId",
+                    "seqType": "Sequelize.UUID"
+                }
+            },
+            "indexes": []
+        },
         "Inventories": {
             "tableName": "Inventories",
             "schema": {
@@ -584,5 +651,5 @@
             "indexes": []
         }
     },
-    "revision": 10
+    "revision": 11
 }

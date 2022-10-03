@@ -41,6 +41,10 @@ module.exports = (sequelize, DataTypes) =>{
       },
       delivery_address:{
         type: DataTypes.STRING
+      },
+      deleted:{
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
       }
     },
 

@@ -13,7 +13,8 @@
     "migration-0": "runmigration",
     "migration": "sequelize-cli db:migrate",
     "seed-cat": "sequelize-cli db:seed --seed category.seed.js",
-    "create-db": "sequelize-cli db:create"
+    "create-db": "sequelize-cli db:create",
+    "drop-db": "sequelize-cli db:drop"    
   },
   "repository": {
     "type": "git",

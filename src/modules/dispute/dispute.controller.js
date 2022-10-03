@@ -2,14 +2,14 @@ const {HTTP} = require('../../common/constants/http')
 const {RESPONSE} = require('../../common/constants/response')
 const createError = require("../../common/helpers/createError");
 const { createResponse } = require("../../common/helpers/createResponse");
-const InventoryService = require('./inventory.service')
+const DisputeService = require('./dispute.service')
 
-exports.addProductToInventoryController = async (req, res, next) => {
+exports.createDisputeController = async (req, res, next) => {
     try {
-        const {error, message, data} = await InventoryService.addProductToInventory({
-            merchant_id: req.userId, 
-            product_id: req.params.id,
-            payload: req.body
+        const {error, message, data} = await DisputeService.createDispute({
+            userId: req.userId, 
+            ordered_item_id: req.params.id,
+            data: req.body
         })
 
         if (error) {
@@ -33,11 +33,11 @@ exports.addProductToInventoryController = async (req, res, next) => {
     }
 }
 
-exports.getSingleProductFromInventoryController = async (req, res, next) => {
+exports.uploadDiputeImageController = async (req, res, next) => {
     try {
-        const {error, message, data} = await InventoryService.singleInventoryItem({
-            inventory_owner: req.userId, 
-            inventory_id: req.params.id,
+        const {error, message, data} = await DisputeService.uploadDisputeImages({
+            dispute_id: req.params.id,
+            file: req.file.path
         })
 
         if (error) {
@@ -61,17 +61,11 @@ exports.getSingleProductFromInventoryController = async (req, res, next) => {
     }
 }
 
-exports.getAllProductsFromMyInventoryController = async (req, res, next) => {
+exports.getAllDisputesController = async (req, res, next) => {
     try {
-        const {error, message, data} = await InventoryService.allMyInventories({
-            inventory_owner: req.userId,
-            limit: req.query.limit,
-            page: req.query.page, 
+        const {error, message, data} = await DisputeService.getMyDisputes({
+            user_id: req.userId, 
         })
-        const allData = {
-            pagination: data.pagination,
-            products: data.allInventories
-        }
         if (error) {
         return next(
             createError(HTTP.BAD_REQUEST, [
@@ -85,7 +79,7 @@ exports.getAllProductsFromMyInventoryController = async (req, res, next) => {
             ])
         );
         }
-        return createResponse(message, allData)(res, HTTP.CREATED);
+        return createResponse(message, data)(res, HTTP.CREATED);
     } catch (error) {
         console.error(error);
 
@@ -93,12 +87,11 @@ exports.getAllProductsFromMyInventoryController = async (req, res, next) => {
     }
 }
 
-
-exports.removeProductFromInventoryController = async (req, res, next) => {
+exports.viewDisputeController = async (req, res, next) => {
     try {
-        const {error, message, data} = await InventoryService.removeProductFromInventory({
-            inventory_owner: req.userId, 
-            inventory_id: req.params.id,
+        const {error, message, data} = await DisputeService.viewDispute({
+            user_id: req.userId, 
+            dispute_id: req.params.id,
         })
 
         if (error) {
@@ -122,16 +115,14 @@ exports.removeProductFromInventoryController = async (req, res, next) => {
     }
 }
 
-exports.getAllInventoryController = async (req, res, next) => {
+
+exports.removeDisputeController = async (req, res, next) => {
     try {
-        const {error, message, data} = await InventoryService.allInventories({
-            limit: req.query.limit,
-            page: req.query.page, 
+        const {error, message, data} = await DisputeService.cancelDispute({
+            user_id: req.userId, 
+            dispute_id: req.params.id,
         })
-        const allData = {
-            pagination: data.pagination,
-            products: data.allInventories
-        }
+
         if (error) {
         return next(
             createError(HTTP.BAD_REQUEST, [
@@ -145,13 +136,14 @@ exports.getAllInventoryController = async (req, res, next) => {
             ])
         );
         }
-        return createResponse(message, allData)(res, HTTP.CREATED);
+        return createResponse(message, data)(res, HTTP.CREATED);
     } catch (error) {
         console.error(error);
 
         return next(createError.InternalServerError(error));
     }
 }
+
 
 
 
