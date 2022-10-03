@@ -1,12 +1,12 @@
-const {HTTP} = require('../../common/constants/http')
-const {RESPONSE} = require('../../common/constants/response')
-const createError = require("../../common/helpers/createError");
-const { createResponse } = require("../../common/helpers/createResponse");
-const UserService = require('./user.service')
+const {HTTP} = require('../../../common/constants/http')
+const {RESPONSE} = require('../../../common/constants/response')
+const createError = require("../../../common/helpers/createError");
+const { createResponse } = require("../../../common/helpers/createResponse");
+const AdminService = require('./admin-user.service')
 
-exports.registerUserController = async (req, res, next) => {
+exports.registerAdminController = async (req, res, next) => {
     try {
-        const {error, message, data} = await UserService.registerUser({
+        const {error, message, data} = await AdminService.registerAdmin({
             ...req.body
         })
 
@@ -31,9 +31,9 @@ exports.registerUserController = async (req, res, next) => {
     }
 }
 
-exports.loginUserController = async (req, res, next) => {
+exports.loginAdminController = async (req, res, next) => {
     try {
-        const {error, message, data} = await UserService.loginUser(req.user,req.body)
+        const {error, message, data} = await AdminService.loginAdmin(req.user,req.body)
 
         if (error) {
         return next(
@@ -58,7 +58,7 @@ exports.loginUserController = async (req, res, next) => {
 
 exports.forgotPasswordController = async (req, res, next) => {
     try {
-        const {error, message, data} = await UserService.forgotPassword(req.body)
+        const {error, message, data} = await AdminService.forgotPassword(req.body)
 
         if (error) {
         return next(
@@ -83,7 +83,7 @@ exports.forgotPasswordController = async (req, res, next) => {
 
 exports.resetPasswordController = async (req, res, next) => {
     try {
-        const {error, message, data} = await UserService.resetPassword(req.body)
+        const {error, message, data} = await AdminService.resetPassword(req.body)
 
         if (error) {
         return next(

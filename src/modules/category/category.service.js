@@ -1,7 +1,8 @@
 const models = require('../../db/models')
 var Sequelize = require('sequelize')
 const imageUploader = require('../../common/helpers/cloudImageUpload')
-const {getPaginatedRecords, getPaginatedRecordsMultipleRecords} = require('../../common/helpers/paginate')
+const {getPaginatedRecords, paginateRaw} = require('../../common/helpers/paginate')
+const {searchModel} = require('../../common/helpers/search')
 
 const {
     sequelize,
@@ -9,6 +10,69 @@ const {
     Product,
     Inventory
 } = models
+
+exports.addCategory = async (payload) =>{
+    try {
+        const {admin, body} = payload
+        const existingCategory = await Category.findOne({
+            where: {name: body.name}
+        })
+        if(existingCategory){
+            return{
+                error: true,
+                message: "Category already exists",
+                data: null
+            }
+        }
+        const newCategory = await Category.create({
+            ...body,
+            created_by: admin.email
+        })
+        return {
+            error: false,
+            message: "Categories retreived successfully",
+            data: newCategory
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to retreive categories at the moment",
+            data: null
+        }
+        
+    }
+}
+
+exports.getACategory = async (id) =>{
+    try {
+        const existingCategory = await Category.findOne({
+            where: {id}
+        })
+        if(!existingCategory){
+            return{
+                error: true,
+                message: "Category not found",
+                data: null
+            }
+        }
+        return {
+            error: false,
+            message: "Categories retreived successfully",
+            data: existingCategory
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to retreive category at the moment",
+            data: null
+        }
+        
+    }
+}
 
 exports.getAllCategories = async (data) =>{
     try {
@@ -82,22 +146,41 @@ exports.uploadProductImages = async(payload)=>{
 exports.getAllProductsInACategory = async (data) =>{
     try {
         const {limit, page, category_id} = data
-        const allResults = await getPaginatedRecordsMultipleRecords(
-            Product, Inventory, {
-            limit: Number(limit),
-            page: Number(page),   
-            data1 :{ CategoryId: category_id},
-            data2 :{ CategoryId: category_id},
-            selectedFields1 : ['name', 'quantity_available', 'price', 'description'],
-            selectedFields2 : ['name', 'quantity_available', 'price', 'description']     
-            }
-        )
+        let allResults = []
+        const inventories = await Inventory.findAll({
+            where:{CategoryId: category_id},
+            order: [
+             ["created_at", "DESC"],
+            ],
+        })
+
+        const products = await Product.findAll({
+            where:{CategoryId: category_id},
+            order: [
+             ["created_at", "DESC"],
+            ],
+        })
+        for(const item of products){
+            allResults.push(item)
+        }
+        for(const item of inventories){
+            allResults.push(item)
+        }
+        const arranged = allResults.sort(function(a, b) {
+            var keyA = new Date(a.updated_at),
+                keyB = new Date(b.updated_at);
+            // Compare the 2 dates
+            if (keyA < keyB) return -1;
+            if (keyA > keyB) return 1;
+            return 0;
+        })
+        const display = await paginateRaw(arranged,{limit, page})
         return{
             error: false,
             message: "Product retreived successfully",
             data: {
-                allProducts: allResults,
-                pagination: allResults.perPage
+                allProducts: display,
+                // pagination: allResults.perPage
             }
         }
 
@@ -111,3 +194,35 @@ exports.getAllProductsInACategory = async (data) =>{
         
     }
 }
+
+
+exports.searchCategory = async (data) =>{
+    try {
+        const {limit, page, search} = data
+        const results = await searchModel(Category, {
+            limit:Number(limit), 
+            page:Number(page), 
+            searchField: search
+        })
+        // removing the raw array from the returned result of the search
+        delete results.array
+        return{
+            error: false,
+            message: "category retreived successfully",
+            data: {
+                result: results,
+                pagination: results.perPage
+            }
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to retreive products under this category at the moment",
+            data: null
+        }
+        
+    }
+}
+

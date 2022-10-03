@@ -7,6 +7,7 @@ const inventories = require('./inventory/inventory.route')
 const disputes = require('./dispute/dispute.route')
 const ordered_item = require('./ordered_item/ordered_item.route')
 const categories = require('./category/category.route')
+const adminUsers = require('./admin/admin-user/admin-user.route')
 
 
 
@@ -21,7 +22,7 @@ module.exports = () => {
   router.use('/dispute', disputes)
   router.use('/cart', ordered_item)
   router.use('/category', categories)
-
+  router.use('/admin', adminUsers)
 
   return router;
 };

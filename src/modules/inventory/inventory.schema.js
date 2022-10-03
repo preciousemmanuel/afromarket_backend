@@ -13,3 +13,7 @@ exports.getAllProductSchema = Joi.object({
   page: Joi.number().positive().optional(),
   limit: Joi.number().positive().optional(),
 });
+
+exports.searchInventorySchema = Joi.object({
+  search:  Joi.string().required(),
+});

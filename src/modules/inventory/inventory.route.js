@@ -6,12 +6,14 @@ const {
  removeProductFromInventoryController,
  getSingleProductFromInventoryController,
  getAllProductsFromMyInventoryController,
- getAllInventoryController
+ getAllInventoryController,
+ searchInventoryController
 } = require('./inventory.controller')
 const {
 singleInventoryItemSchema,
 getAllProductSchema,
-inventoryPriceSchema
+inventoryPriceSchema,
+searchInventorySchema
 } = require('./inventory.schema')
 
 const router = Router()
@@ -48,6 +50,13 @@ router.patch(
     validateRequest(singleInventoryItemSchema, "params"),
     authorize(),
     removeProductFromInventoryController
+)
+
+router.post(
+    '/find',
+    validateRequest(searchInventorySchema, "body"),
+    validateRequest(getAllProductSchema, "query"),
+    searchInventoryController
 )
 
 
