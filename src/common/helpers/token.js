@@ -7,6 +7,12 @@ exports.jwtSign = (id) => {
   });
 };
 
+exports.jwtSignOtp = (id) => {
+  return jwt.sign({ id }, KEYS.JWTSecret, {
+    expiresIn: KEYS.expiresInForOtp,
+  });
+};
+
 exports.jwtVerify = (token) => {
    try {
      return jwt.verify(token, KEYS.JWTSecret);

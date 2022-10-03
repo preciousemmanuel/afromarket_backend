@@ -14,7 +14,7 @@
     "migration": "sequelize-cli db:migrate",
     "seed-cat": "sequelize-cli db:seed --seed category.seed.js",
     "create-db": "sequelize-cli db:create",
-    "drop-db": "sequelize-cli db:drop"    
+    "drop-db": "sequelize-cli db:drop"
   },
   "repository": {
     "type": "git",
@@ -51,6 +51,7 @@
     "mysql": "^2.18.1",
     "mysql2": "^2.3.3",
     "node-fetch": "^3.2.10",
+    "nodemailer": "^6.8.0",
     "nodemon": "^2.0.20",
     "path": "^0.12.7",
     "reflect-metadata": "^0.1.13",

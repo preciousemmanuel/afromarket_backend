@@ -1,6 +1,7 @@
 const models = require('../../db/models')
 var Sequelize = require('sequelize')
-const { getPaginatedRecords } = require('../../common/helpers/paginate')
+const { getPaginatedRecords, paginateRaw } = require('../../common/helpers/paginate')
+const {searchModel} = require('../../common/helpers/search')
 
 const {
     sequelize,
@@ -219,6 +220,47 @@ exports.allInventories = async (payload) =>{
         return{
             error: true,
             message: error.message|| "Unable to remove product from your inventory at the moment",
+            data: null
+        }
+        
+    }
+}
+
+
+exports.searchInventory = async (data) =>{
+    try {
+        const {limit, page, search} = data
+        const inventoryResult = await searchModel(Inventory, {
+            limit:Number(limit), 
+            page:Number(page), 
+            searchField: search
+        })
+
+        const productResult= await searchModel(Product, {
+            limit:Number(limit), 
+            page:Number(page), 
+            searchField: search
+        })
+        const inventoryArray = inventoryResult.array
+        const productArray = productResult.array
+        const results = inventoryArray.concat(productArray)
+
+        const paginatedRecords = await paginateRaw(results, {limit, page})
+
+        return{
+            error: false,
+            message: "products retreived successfully",
+            data: {
+                result: paginatedRecords,
+                pagination: paginatedRecords.perPage
+            }
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to retreive products searched for at the moment",
             data: null
         }
         

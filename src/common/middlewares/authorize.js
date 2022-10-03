@@ -4,7 +4,7 @@ const { HTTP } = require("../constants/http");
 const { RESPONSE } = require("../constants/response");
 const createError = require("../helpers/createError");
 const {jwtVerify} = require('../helpers/token')
-const {Merchant, User, Product} = models
+const {Merchant, User, Product, Admin} = models
 
 exports.authorize = () => async (req, _, next) => {
   const token =
@@ -126,6 +126,125 @@ exports.authorizeMerchant = () => async (req, _, next) => {
       req.userId = merchant.id;
       req.user = merchant;
       next();
+    } else {
+      next(
+        createError(HTTP.BAD_REQUEST, [
+          {
+            status: RESPONSE.ERROR,
+            message: "Invalid auth token.",
+            statusCode: HTTP.UNAUTHORIZED,
+          },
+        ])
+      );
+    }
+  } catch (err) {
+    next(
+      createError(HTTP.BAD_REQUEST, [
+        {
+          status: err.response.data.status || RESPONSE.ERROR,
+          message: err.response.data.message || err.message,
+          statusCode: err.response.data.code || HTTP.UNAUTHORIZED,
+        },
+      ])
+    );
+  }
+};
+
+
+exports.authorizeAdmin = async (req, _, next) => {
+  try {
+    const token =
+      req.headers.authorization && req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return next(
+        createError(HTTP.BAD_REQUEST, [
+          {
+            status: RESPONSE.ERROR,
+            message: "Authorization token is missing.",
+            statusCode: HTTP.UNAUTHORIZED,
+          },
+        ])
+      );
+    }
+    const {id} = await jwtVerify(token)
+    const admin = await Admin.findOne({
+    where:{id}
+    });
+
+    if (!admin) {
+      return next(
+        createError(HTTP.UNAUTHORIZED, [
+          {
+            status: RESPONSE.ERROR,
+            message: 'Unauthorized to perform this action',
+            statusCode: HTTP.UNAUTHORIZED,
+          },
+        ])
+      );
+    }
+    if(admin) {
+      req.userId = admin.id
+      req.user = admin
+      next()
+    } else {
+      next(
+        createError(HTTP.BAD_REQUEST, [
+          {
+            status: RESPONSE.ERROR,
+            message: "Invalid auth token.",
+            statusCode: HTTP.UNAUTHORIZED,
+          },
+        ])
+      );
+    }
+  } catch (err) {
+    next(
+      createError(HTTP.BAD_REQUEST, [
+        {
+          status: err.response.data.status || RESPONSE.ERROR,
+          message: err.response.data.message || err.message,
+          statusCode: err.response.data.code || HTTP.UNAUTHORIZED,
+        },
+      ])
+    );
+  }
+};
+
+exports.authorizeSuperAdmin =  async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader.split(" ")[1];
+  if (!token) {
+    next(
+      createError(HTTP.BAD_REQUEST, [
+        {
+          status: RESPONSE.ERROR,
+          message: "Authorization token is missing.",
+          statusCode: HTTP.UNAUTHORIZED,
+        },
+      ])
+    );
+  }
+  try {
+    const {id} = await jwtVerify(token)
+    const admin = await Admin.findOne({
+    where:{id, role: "super"}
+    });
+
+    if (!admin) {
+      return next(
+        createError(HTTP.UNAUTHORIZED, [
+          {
+            status: RESPONSE.ERROR,
+            message: 'Unauthorized to perform this action',
+            statusCode: HTTP.UNAUTHORIZED,
+          },
+        ])
+      );
+    }
+    if(admin) {
+      req.userId = admin.id
+      req.user = admin
+      next()
     } else {
       next(
         createError(HTTP.BAD_REQUEST, [

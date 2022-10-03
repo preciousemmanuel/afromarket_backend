@@ -1,12 +1,11 @@
 const {Model} = require('sequelize')
 
 module.exports = (sequelize, DataTypes) =>{
-  class Category extends Model {
+  class OneTimePassword extends Model {
     static associate(models){
-        this.hasMany(models.Product, {as: 'Product'})
     }
   }
-  Category.init(
+  OneTimePassword.init(
     {
       id: {
         primaryKey: true,
@@ -14,13 +13,10 @@ module.exports = (sequelize, DataTypes) =>{
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4
       },
-      name: {
+      otp: {
         type: DataTypes.STRING
       },
-      description: {
-        type: DataTypes.STRING,
-      },
-      created_by:{
+      signedToken: {
         type: DataTypes.STRING
       },
       deleted:{
@@ -28,13 +24,14 @@ module.exports = (sequelize, DataTypes) =>{
         defaultValue: false
       }
     },
+
     {
       sequelize,
-      modelName: "Category",
+      modelName: "OneTimePassword",
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
     }
   )
-  return Category
+  return OneTimePassword
 }

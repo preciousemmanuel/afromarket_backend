@@ -1,12 +1,11 @@
 const {Model} = require('sequelize')
 
 module.exports = (sequelize, DataTypes) =>{
-  class Category extends Model {
+  class Admin extends Model {
     static associate(models){
-        this.hasMany(models.Product, {as: 'Product'})
     }
   }
-  Category.init(
+  Admin.init(
     {
       id: {
         primaryKey: true,
@@ -14,13 +13,30 @@ module.exports = (sequelize, DataTypes) =>{
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4
       },
-      name: {
+      fullName: {
         type: DataTypes.STRING
       },
-      description: {
+      email: {
+        unique: true,
         type: DataTypes.STRING,
       },
-      created_by:{
+      phone_number:{
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      password: {
+        type: DataTypes.STRING,
+      },
+      role: {
+        type: DataTypes.ENUM,
+        values:["super", "admin"],
+        defaultValue: "admin",
+      },
+      isBlocked: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      refreshTokens: {
         type: DataTypes.STRING
       },
       deleted:{
@@ -28,13 +44,14 @@ module.exports = (sequelize, DataTypes) =>{
         defaultValue: false
       }
     },
+
     {
       sequelize,
-      modelName: "Category",
+      modelName: "Admin",
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
     }
   )
-  return Category
+  return Admin
 }

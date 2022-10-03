@@ -153,5 +153,38 @@ exports.getAllInventoryController = async (req, res, next) => {
     }
 }
 
+exports.searchInventoryController = async (req, res, next) => {
+    try {
+        const {error, message, data} = await InventoryService.searchInventory({
+            limit: req.query.limit,
+            page: req.query.page,
+            search: req.body.search
+        })
+
+       const allResults = {
+        pagination : data.pagination,
+        results: data.result
+       }
+
+        if (error) {
+        return next(
+            createError(HTTP.BAD_REQUEST, [
+            {
+                status: RESPONSE.ERROR,
+                message,
+                statusCode:
+                data instanceof Error ? HTTP.SERVER_ERROR : HTTP.BAD_REQUEST,
+                data,
+            },
+            ])
+        );
+        }
+        return createResponse(message, allResults)(res, HTTP.CREATED);
+    } catch (err) {
+        console.error(err);
+
+        return next(createError.InternalServerError(err));
+    }
+}
 
 
