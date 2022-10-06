@@ -89,6 +89,9 @@ exports.createOrder = async (user, data) =>{
                 const ordered_item = await OrderedItem.create({
                     ProductId: updatedProduct.id,
                     product_name: updatedProduct.name,
+                    picture: updatedProduct.picture,
+                    piture_2: updatedProduct.piture_2,
+                    picture_3: updatedProduct.picture_3,
                     quantity_ordered: Number(item.quantity_ordered),
                     price: Number(inventory.price),
                     total: (Number(inventory.price))*(Number(item.quantity_ordered)),

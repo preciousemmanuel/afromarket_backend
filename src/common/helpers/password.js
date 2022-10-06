@@ -47,9 +47,6 @@ exports.forgotPassword = async (model, email,) =>{
     message: mail.message,
     data: mail.data
   }
-
-
-
 }
 
 exports.resetPassword = async(
@@ -68,24 +65,22 @@ exports.resetPassword = async(
   const matchingPassword = await this.comparePassword(existingModel.password, newPassword)
   if(matchingPassword){
     return{
-        error: true,
-        message: 'Old password cannot be the same as new one',
-        data: null
+      error: true,
+      message: 'Old password cannot be the same as new one',
+      data: null
     }
   }
 
   const password = this.hashPassword(newPassword)
-        await model.update(
-            {password},
-            {where:{id: id}}
-        )
-       const updatedModel = await model.findOne({
-        attributes:{exclude:['password']},
-        where:{id}
-    })
+  await model.update(
+      {password},
+      {where:{id: id}}
+  )
+  const updatedModel = await model.findOne({
+    attributes:{exclude:['password']},
+    where:{id}
+  })
 
-    await OneTimePassword.destroy({where: {otp}})
-    return {model: updatedModel, email: updatedModel.email}
-
-
+  await OneTimePassword.destroy({where: {otp}})
+  return {model: updatedModel, email: updatedModel.email}
 }

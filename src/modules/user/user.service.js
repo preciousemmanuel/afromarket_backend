@@ -1,13 +1,11 @@
 const models = require('../../db/models')
 var Sequelize = require('sequelize')
 const {hashPassword, comparePassword, forgotPassword, resetPassword} = require('../../common/helpers/password')
-const {jwtDecode, jwtSign, jwtVerify, jwtSignOtp} = require('../../common/helpers/token')
+const {jwtSign} = require('../../common/helpers/token')
 const {
     sequelize,
     User,
-    OneTimePassword
 } = models
-const {sendOTPtoMail} = require('../email-notification/email.service')
 
 exports.registerUser = async (data) =>{
     try {

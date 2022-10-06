@@ -1,16 +1,20 @@
-const {HTTP} = require('../../common/constants/http')
-const {RESPONSE} = require('../../common/constants/response')
-const createError = require("../../common/helpers/createError");
-const { createResponse } = require("../../common/helpers/createResponse");
-const DisputeService = require('./dispute.service')
+const {HTTP} = require('../../../common/constants/http')
+const {RESPONSE} = require('../../../common/constants/response')
+const createError = require("../../../common/helpers/createError");
+const { createResponse } = require("../../../common/helpers/createResponse");
+const adminUsersService = require('./user.service')
 
-exports.createDisputeController = async (req, res, next) => {
-    try {
-        const {error, message, data} = await DisputeService.createDispute({
-            userId: req.userId, 
-            order_id: req.params.id,
-            data: req.body
+exports.getAllUsersController = async (req, res, next) =>{
+     try {
+        const {error, message, data} = await adminUsersService.getAllUsers({
+            limit: req.query.limit, 
+            page: req.query.page,
         })
+
+        // const allData = {
+        //     pagination:data.pagination,
+        //     orders: data.allOrders
+        // }
 
         if (error) {
         return next(
@@ -33,13 +37,10 @@ exports.createDisputeController = async (req, res, next) => {
     }
 }
 
-exports.uploadDiputeImageController = async (req, res, next) => {
-    try {
-        const {error, message, data} = await DisputeService.uploadDisputeImages({
-            dispute_id: req.params.id,
-            file: req.file.path
-        })
-
+exports.searchUserController = async (req, res, next) =>{
+     try {
+        const {error, message, data} = await adminUsersService.searchForUserByAdmin(req.body)
+        
         if (error) {
         return next(
             createError(HTTP.BAD_REQUEST, [
@@ -61,10 +62,38 @@ exports.uploadDiputeImageController = async (req, res, next) => {
     }
 }
 
-exports.getAllDisputesController = async (req, res, next) => {
-    try {
-        const {error, message, data} = await DisputeService.getMyDisputes({
-            user_id: req.userId, 
+exports.getAUserController = async (req, res, next) =>{
+     try {
+        const {error, message, data} = await adminUsersService.getOneUserByAdmin(req.params.id)
+        
+        if (error) {
+        return next(
+            createError(HTTP.BAD_REQUEST, [
+            {
+                status: RESPONSE.ERROR,
+                message,
+                statusCode:
+                data instanceof Error ? HTTP.SERVER_ERROR : HTTP.BAD_REQUEST,
+                data,
+            },
+            ])
+        );
+        }
+        return createResponse(message, data)(res, HTTP.CREATED);
+    } catch (error) {
+        console.error(error);
+
+        return next(createError.InternalServerError(error));
+    }
+}
+
+exports.getNewUsersController = async (req, res, next) =>{
+     try {
+        const {error, message, data} = await adminUsersService.getNewUsersByAdmin({
+            limit: req.query.limit, 
+            page: req.query.page,
+            startDate: req.body.startDate,
+            endDate: req.body.endDate
         })
         if (error) {
         return next(
@@ -87,13 +116,10 @@ exports.getAllDisputesController = async (req, res, next) => {
     }
 }
 
-exports.viewDisputeController = async (req, res, next) => {
-    try {
-        const {error, message, data} = await DisputeService.viewDispute({
-            user_id: req.userId, 
-            dispute_id: req.params.id,
-        })
-
+exports.flagAUserController = async (req, res, next) =>{
+     try {
+        const {error, message, data} = await adminUsersService.flagUserByAdmin(req.params.id)
+        
         if (error) {
         return next(
             createError(HTTP.BAD_REQUEST, [
@@ -114,36 +140,3 @@ exports.viewDisputeController = async (req, res, next) => {
         return next(createError.InternalServerError(error));
     }
 }
-
-
-exports.removeDisputeController = async (req, res, next) => {
-    try {
-        const {error, message, data} = await DisputeService.cancelDispute({
-            user_id: req.userId, 
-            dispute_id: req.params.id,
-        })
-
-        if (error) {
-        return next(
-            createError(HTTP.BAD_REQUEST, [
-            {
-                status: RESPONSE.ERROR,
-                message,
-                statusCode:
-                data instanceof Error ? HTTP.SERVER_ERROR : HTTP.BAD_REQUEST,
-                data,
-            },
-            ])
-        );
-        }
-        return createResponse(message, data)(res, HTTP.CREATED);
-    } catch (error) {
-        console.error(error);
-
-        return next(createError.InternalServerError(error));
-    }
-}
-
-
-
-

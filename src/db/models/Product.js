@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) =>{
       },
       isapproved: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false,
+        defaultValue: true,
       },
       ratings: {
         type: DataTypes.INTEGER

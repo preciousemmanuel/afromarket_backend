@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) =>{
   class Dispute extends Model {
     static associate(models){
       this.belongsTo(models.User, {as: "User"}),
-      this.belongsTo(models.OrderedItem, {as:"OrderedItem"})
+      this.belongsTo(models.Order, {as:"Order"})
     }
   }
   Dispute.init(
@@ -26,6 +26,11 @@ module.exports = (sequelize, DataTypes) =>{
        type: DataTypes.ENUM,
         values:['Initiated','Won', 'On_Going', 'Lost'],
         defaultValue: 'Initiated'
+      },
+      awarded_to:{
+        type: DataTypes.ENUM,
+        values: ["customer", "seller", "unresolved"],
+        defaultValue: "unresolved"
       },
       description: {
         type: DataTypes.STRING,
