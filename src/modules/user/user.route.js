@@ -1,9 +1,11 @@
 const {Router} = require('express')
 const { authorizeLogin } = require('../../common/middlewares/authorizeLogin')
+const {authorize} = require('../../common/middlewares/authorize')
 const validateRequest = require('../../common/middlewares/validateRequest')
 const { 
  registerUserController,
  loginUserController,
+ logoutUserController,
  forgotPasswordController,
  resetPasswordController
 } = require('./user.controller')
@@ -27,6 +29,12 @@ router.post(
     authorizeLogin,
     loginUserController
 )
+router.get(
+    '/logout',
+    authorize(),
+    logoutUserController
+)
+
 router.post(
     '/pass/forgot',
     validateRequest(forgotPasswordSchema, "body"),

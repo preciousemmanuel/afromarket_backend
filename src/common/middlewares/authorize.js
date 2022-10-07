@@ -43,10 +43,12 @@ exports.authorize = () => async (req, _, next) => {
     if (merchant) {
       req.userId = merchant.id;
       req.user = merchant;
+      req.token = token
       next();
     }else if(user) {
       req.userId = user.id
       req.user = user
+      req.token = token
       next()
     } else {
       next(
@@ -185,6 +187,7 @@ exports.authorizeAdmin = async (req, _, next) => {
     if(admin) {
       req.userId = admin.id
       req.user = admin
+      req.token = token
       next()
     } else {
       next(
@@ -244,6 +247,7 @@ exports.authorizeSuperAdmin =  async (req, res, next) => {
     if(admin) {
       req.userId = admin.id
       req.user = admin
+      req.token = token
       next()
     } else {
       next(

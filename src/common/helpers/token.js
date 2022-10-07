@@ -30,3 +30,11 @@ exports.jwtDecode = (token) => {
     return {};
   }
 }
+
+
+exports.jwtSignOut = (token) => {
+ const id =  jwt.verify(token, KEYS.JWTSecret);
+
+  
+
+};
