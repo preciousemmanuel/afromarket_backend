@@ -15,11 +15,12 @@ module.exports = (sequelize, DataTypes) =>{
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4
       },
-      value: {
+      text: {
         type: DataTypes.STRING
       },
-      text: {
+      rating: {
         type: DataTypes.INTEGER,
+        defaultValue: 3
       },
       deleted:{
         type: DataTypes.BOOLEAN,

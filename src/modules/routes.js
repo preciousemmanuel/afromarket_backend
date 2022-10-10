@@ -6,12 +6,14 @@ const orders = require('./order/order.route')
 const inventories = require('./inventory/inventory.route')
 const disputes = require('./dispute/dispute.route')
 const ordered_item = require('./ordered_item/ordered_item.route')
+const reviews = require('./review/review.route')
 const categories = require('./category/category.route')
 const adminUser = require('./admin/admin-user/admin-user.route')
 const adminProduct = require('./admin/products/admin-product.route')
 const adminOrder = require('./admin/order/admin-order.route')
 const adminOnUsers = require('./admin/users/user.route')
 const adminDisputes =  require('./admin/dispute/admin-dispute.route')
+const adminHomePage = require('./admin/home/admin-home.route')
 
 
 
@@ -28,11 +30,16 @@ module.exports = () => {
   router.use('/dispute', disputes)
   router.use('/cart', ordered_item)
   router.use('/category', categories)
+  router.use('/review', reviews)
+
+  //Admin routes
   router.use('/admin', adminUser)
   router.use('/admin/products', adminProduct)
   router.use('/admin/orders', adminOrder)
   router.use('/admin/user', adminOnUsers)
   router.use('/admin/dispute', adminDisputes)
+  router.use('/admin', adminHomePage)
+
 
 
 

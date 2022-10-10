@@ -1,7 +1,7 @@
 const models = require('../../db/models')
 var Sequelize = require('sequelize')
 const {hashPassword, comparePassword, forgotPassword, resetPassword} = require('../../common/helpers/password')
-const {jwtSign} = require('../../common/helpers/token')
+const {jwtSign, jwtVerify} = require('../../common/helpers/token')
 const {
     sequelize,
     User,
@@ -75,7 +75,7 @@ exports.loginUser = async(user, data) => {
             {where: {id: user.id}}
         )
         const loginUser = await User.findOne({
-            attributes:['email','fullname', 'id'],
+            attributes:['email','fullname', 'id', 'refreshTokens'],
             where: {id:user.id}
         })
 
@@ -90,6 +90,38 @@ exports.loginUser = async(user, data) => {
         return{
             error: true,
             message: error.message|| "Unable to log in user at the moment",
+            data: null
+        }
+    }
+}
+
+exports.logoutUser = async(token) => {
+    try {
+        const {id} = jwtVerify(token)
+        const loggedInuser = await User.findOne({where:{id: id}})
+        if(!loggedInuser){
+            return {
+                error: true,
+                message: "User not found",
+            }
+        }
+        await User.update(
+            {refreshTokens: null},
+            {where: {id: loggedInuser.id}}
+        )
+
+        const loggedOutUser = await User.findOne({where: {id: loggedInuser.id}})
+        return{
+            error: false,
+            message: 'Logout successful',
+            data: loggedOutUser
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to log out user at the moment",
             data: null
         }
     }

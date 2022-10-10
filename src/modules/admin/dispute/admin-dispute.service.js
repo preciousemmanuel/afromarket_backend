@@ -76,6 +76,7 @@ exports.getOneDisputeByAdmin = async (id) =>{
                 customer_contact: user.phone_number,
                 description: dispute.description,
                 itemsInOrder: orderedItems,
+                order: order
             }
         }
 

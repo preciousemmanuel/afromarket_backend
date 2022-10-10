@@ -24,13 +24,13 @@ module.exports = (sequelize, DataTypes) =>{
       },
       status: {
        type: DataTypes.ENUM,
-        values:['Initiated','Won', 'On_Going', 'Lost'],
+        values:['Initiated','Resolved'],
         defaultValue: 'Initiated'
       },
       awarded_to:{
         type: DataTypes.ENUM,
-        values: ["customer", "seller", "unresolved"],
-        defaultValue: "unresolved"
+        values: ["customer", "seller", "inView"],
+        defaultValue: "inView"
       },
       description: {
         type: DataTypes.STRING,

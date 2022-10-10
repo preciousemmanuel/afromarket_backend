@@ -5,6 +5,7 @@ const validateRequest = require('../../../common/middlewares/validateRequest')
 const { 
 registerAdminController,
 loginAdminController,
+logoutAdminController,
 forgotPasswordController,
 resetPasswordController
 } = require('./admin-user.controller')
@@ -28,6 +29,12 @@ router.post(
     validateRequest(loginAdminSchema, "body"),
     authAdminLogin,
     loginAdminController
+)
+
+router.get(
+    '/logout',
+    authorizeAdmin,
+    logoutAdminController
 )
 
 router.post(

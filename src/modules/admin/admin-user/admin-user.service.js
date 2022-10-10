@@ -1,11 +1,10 @@
 const models = require('../../../db/models')
 var Sequelize = require('sequelize')
 const {hashPassword, comparePassword,forgotPassword, resetPassword} = require('../../../common/helpers/password')
-const { jwtSign,} = require('../../../common/helpers/token')
+const { jwtSign, jwtVerify} = require('../../../common/helpers/token')
 const {
     sequelize,
     Admin,
-    OneTimePassword
 } = models
 
 exports.registerAdmin = async (data) =>{
@@ -94,6 +93,37 @@ exports.loginAdmin = async(user, data) => {
     }
 }
 
+exports.logoutAdmin = async(token) => {
+    try {
+        const {id} = jwtVerify(token)
+        const loggedInAdmin = await Admin.findOne({where:{id: id}})
+        if(!loggedInAdmin){
+            return {
+                error: true,
+                message: "User not found",
+            }
+        }
+        await Admin.update(
+            {refreshTokens: null},
+            {where: {id: loggedInAdmin.id}}
+        )
+
+        const loggedOutAdmin = await Admin.findOne({where: {id: loggedInAdmin.id}})
+        return{
+            error: false,
+            message: 'Logout successful',
+            data: loggedOutAdmin
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to log out admin at the moment",
+            data: null
+        }
+    }
+}
 
 exports.forgotPassword = async(body) => {
     try {
