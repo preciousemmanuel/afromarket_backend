@@ -20,6 +20,16 @@ module.exports = (sequelize, DataTypes) =>{
         type: DataTypes.STRING,
         allowNull: false
       },
+       picture:{
+        type: DataTypes.STRING,
+        
+      },
+      picture_2:{
+        type: DataTypes.STRING,
+      },
+      picture_3:{
+        type: DataTypes.STRING,
+      },
       quantity_ordered:{
         type: DataTypes.INTEGER,
         defaultValue: 1

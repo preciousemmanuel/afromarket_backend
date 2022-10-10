@@ -6,32 +6,41 @@ const cloudinary = require('../../common/config/cloudinary')
 
 const {
     sequelize,
-    Dispute
+    Dispute,
+    OrderedItem,
+    Order
 } = models
 
 exports.createDispute = async (payload) =>{
     try {
-        const {userId, ordered_item_id, data} = payload
+        const {userId, order_id, data} = payload
 
-        const existingDispute = await Dispute.findOne({
-            where: {OrderedItem: ordered_item_id}
-        })
-        
-        if(existingDispute){
-
+        const order = await Order.findOne({
+            where:{id: order_id}
+        })                
+        if(!order){
+            return{
+                error: true,
+                message:"Order not found",
+                data: null
+            }
         }
+
         const newDispute= await Dispute.create(
             {
                 ...data,
-                OrderedItem: ordered_item_id,
+                OrderId: order_id,
                 UserId: userId
-
             },
             {raw: true}
         )
+        await Order.update(
+            {status: "disputed"},
+            {where:{id: order_id}}
+        )
         return {
             error: false,
-            message: "Dispute creted successfully",
+            message: "Dispute created successfully",
             data: newDispute
         }
 
