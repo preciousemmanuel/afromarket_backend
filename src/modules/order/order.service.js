@@ -1,6 +1,11 @@
 const models = require('../../db/models')
 var Sequelize = require('sequelize')
 const randomString = require('../../common/helpers/randString')
+const {
+    sendOrderDetailstoMail,
+    sendMailToMerchant
+} = require('../email-notification/email.service')
+const {deliveryDate} = require('../../common/helpers/deliveryDate')
 
 
 const {
@@ -9,6 +14,7 @@ const {
     Product,
     OrderedItem,
     Inventory,
+    Merchant,
     Tracker
 } = models
 
@@ -17,7 +23,8 @@ exports.createOrder = async (user, data) =>{
 
         const {order_tray, delivery_address} = data
         let total_price = 0
-        let ordered_items = []
+        let finalOrderedItems = []
+        let ordered_items_ids = []
         const newOrder= await Order.create(
             {   items: '',
                 UserId:user.id,
@@ -30,7 +37,7 @@ exports.createOrder = async (user, data) =>{
         for(const item of order_tray){
             const inventory = await Inventory.findOne({where: {id: item.id, deleted: false}})
             if(inventory){
-                const product = await Product.findOne({where:{id: inventory.ProductId}})
+                const product = await Product.findOne({where:{id: inventory.ProductId, deleted: false}})
                  if(Number(product.quantity_available) < Number(item.quantity_ordered) ){
                     return{
                         error: true,
@@ -101,8 +108,10 @@ exports.createOrder = async (user, data) =>{
                     resale_profit: resale_cut * (Number(item.quantity_ordered)),
                     profit_owner: inventory.inventory_owner
                 })
+
+                finalOrderedItems.push(ordered_item)
                 const orderId = ordered_item.id
-                ordered_items.push(orderId)
+                ordered_items_ids.push(orderId)
                 total_price += Number(ordered_item.total)
             }else if(product){             
                 var stock_left = Number(product.quantity_available)-Number(item.quantity_ordered)
@@ -138,25 +147,24 @@ exports.createOrder = async (user, data) =>{
                     OrderId:newOrder.id,
                     MerchantId: product.MerchantId,
                 })
+                finalOrderedItems.push(ordered_item)
                 const orderId = ordered_item.id
-                ordered_items.push(orderId)
+                ordered_items_ids.push(orderId)
                 total_price += Number(ordered_item.total)
         }   }
-        const tracking_id = 'AFRM'+randomString()
-        const deliveryDate = (a) => {
-            const date =  new Date(new Date().getTime()+(Number(a)*24*60*60*1000))
-            return date
-        }
+        const tracking_id = 'AM'+randomString()
+
+
         await Order.update(
             {
-                items: ordered_items,
+                items: ordered_items_ids,
                 order_cost: total_price,
                 trackingId: tracking_id,
-                delivery_date:deliveryDate(5)
+                delivery_date:deliveryDate()
             },
             {where: {id:newOrder.id, deleted: false}}
         )
-        const orderPlaced = await Order.findOne({
+        const placedOrder = await Order.findOne({
             attributes: {exclude:['deleted']},
             where:{id:newOrder.id, deleted: false}
         })
@@ -167,16 +175,43 @@ exports.createOrder = async (user, data) =>{
         },
         {raw: true}
         )
+     
+        const orderPlaced = {
+            items_in_order: finalOrderedItems,
+            is_paid: placedOrder.isPaid,
+            payment_type: placedOrder.payment_type,
+            total: placedOrder.order_cost,
+            delivery_type: placedOrder.delivery_type,
+            delivery_address: placedOrder.delivery_address,
+            delivery_date: placedOrder.delivery_date,
+            tracking_id: placedOrder.trackingId
+        }
+        //send mail to customer
+        const customerMail = await sendOrderDetailstoMail({
+            email: user.email,
+            fullName: user.fullName,
+            order: {...orderPlaced},
+            items: ordered_items_ids
+        })
+
+        // send Mail to Merchant
+        const merchantMail = await sendMailToMerchant({
+            productIds: ordered_items_ids
+        })
+
          return {
             error: false,
             message: "Order created successfully",
-            data: {orderPlaced, tracker}
+            data: {
+                orderPlaced, 
+                tracker, 
+                customerEmailResponse: customerMail.message,
+                merchantMailResponse: merchantMail.data
+
+            }
         }
 
     } catch (error) {
-        // await Order.destroy({
-        //     where:{id: newOrder.id}
-        // })
         console.log(error)
         return{
             error: true,

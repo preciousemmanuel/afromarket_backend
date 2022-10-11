@@ -1,7 +1,7 @@
 module.exports = function randomString() {
             //define a variable consisting alphabets in small and capital letter
-	var characters = "ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
-    var number = Math.floor(Math.random()* 10000)        
+	var characters = "ABCDEFGHIJKLMNOPQRSTUVWXTZ";
+    var number = Math.floor(Math.random()* 1000000)        
             //specify the length for the new string
 	var lenString = 2;
 	var string = '';
