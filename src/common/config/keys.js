@@ -21,7 +21,12 @@ const KEYS = {
   mailPort: process.env.MAIL_PORT,
   mailAuthUser: process.env.MAIL_AUTH_USER,
   mailAuthPass: process.env.MAIL_AUTH_PASS,
-  mailSender: process.env.MAIL_SENDER
+  mailSender: process.env.MAIL_SENDER,
+  flwPubkey: process.env.FLW_PUB_KEY,
+  flwSecKey: process.env.FLW_SEC_KEY,
+  flwEncKey: process.env.FLW_ENC_KEY,
+  flwPaymentUrl: process.env.FLW_PAYMENT_URL,
+  flwRedirectUrl: process.env.FLW_REDIRECT_URL
 };
 
 module.exports = KEYS;
