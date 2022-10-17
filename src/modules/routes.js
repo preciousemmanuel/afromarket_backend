@@ -14,6 +14,7 @@ const adminOrder = require('./admin/order/admin-order.route')
 const adminOnUsers = require('./admin/users/user.route')
 const adminDisputes =  require('./admin/dispute/admin-dispute.route')
 const adminHomePage = require('./admin/home/admin-home.route')
+const flwPayment = require('./flw-payment/flw.route')
 
 
 
@@ -31,6 +32,7 @@ module.exports = () => {
   router.use('/cart', ordered_item)
   router.use('/category', categories)
   router.use('/review', reviews)
+  router.use('/payment', flwPayment)
 
   //Admin routes
   router.use('/admin', adminUser)

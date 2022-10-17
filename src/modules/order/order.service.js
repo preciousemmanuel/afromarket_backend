@@ -1,3 +1,5 @@
+
+const KEYS = require('../../common/config/keys')
 const models = require('../../db/models')
 var Sequelize = require('sequelize')
 const randomString = require('../../common/helpers/randString')
@@ -6,6 +8,7 @@ const {
     sendMailToMerchant
 } = require('../email-notification/email.service')
 const {deliveryDate} = require('../../common/helpers/deliveryDate')
+const { uuid } = require('uuidv4')
 
 
 const {
@@ -198,15 +201,26 @@ exports.createOrder = async (user, data) =>{
         const merchantMail = await sendMailToMerchant({
             productIds: ordered_items_ids
         })
-
-         return {
+        //Assemble payment details
+        const paymentDetails = {
+            tx_ref: uuid(),
+            amount: Number(orderPlaced.total),
+            redirect_url: KEYS.flwRedirectUrl,
+            email: user.email,
+            name: user.fullName,
+            order_id: placedOrder.id,
+            tracking_id: tracking_id
+        }
+        
+        return {
             error: false,
             message: "Order created successfully",
             data: {
                 orderPlaced, 
                 tracker, 
                 customerEmailResponse: customerMail.message,
-                merchantMailResponse: merchantMail.data
+                merchantMailResponse: merchantMail.data,
+                paymentDetails: paymentDetails
 
             }
         }
