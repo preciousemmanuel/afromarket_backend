@@ -61,6 +61,9 @@
     "sequelize": "^6.23.0",
     "sequelize-auto-migrations-v2": "^1.2.1",
     "sequelize-cli": "^6.4.1",
+    "swagger-autogen": "^2.22.0",
+    "swagger-jsdoc": "^6.2.5",
+    "swagger-ui-express": "^4.5.0",
     "typeorm": "^0.3.9",
     "uuid4": "^2.0.3",
     "uuidv4": "^6.2.13"
