@@ -8,10 +8,9 @@ const KEYS = require("./common/config/keys");
 const createError = require("./common/helpers/createError");
 const { RESPONSE } = require("./common/constants/response");
 const { HTTP } = require("./common/constants/http");
-const swaggerUi = require('swagger-ui-express')
-const swaggerDoc = require('../swagger.json');
+// const swaggerUi = require('swagger-ui-express')
+// const swaggerDoc = require('../swagger.json');
 
-// const { requestLogger } = require("./common/middlewares/requestLogger");
 const models = require("./db/models")
 const { Op, QueryTypes } = require("sequelize");
 const app = express();
@@ -24,7 +23,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 app.use(morgan("dev"));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc))
+
+//swagger documentation
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc))
 
 
 app.use(function (_err, _req, _res, _) {
