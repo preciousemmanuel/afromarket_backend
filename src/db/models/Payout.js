@@ -1,5 +1,4 @@
 const {Model} = require('sequelize')
-const { setDueDate } = require('../../common/helpers/deliveryDate')
 
 module.exports = (sequelize, DataTypes) =>{
   class Payout extends Model {
