@@ -27,6 +27,15 @@ module.exports = (sequelize, DataTypes) =>{
       business_description: {
         type: DataTypes.STRING,
       },
+      bank_name: {
+        type: DataTypes.STRING
+      },
+      account_name: {
+        type: DataTypes.STRING
+      },
+      account_number:{
+        type: DataTypes.STRING,
+      },
       bank_verification_number:{
         type: DataTypes.INTEGER,
       },
