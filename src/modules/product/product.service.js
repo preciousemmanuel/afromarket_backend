@@ -1,6 +1,6 @@
 const models = require('../../db/models')
 var Sequelize = require('sequelize')
-const imageUploader = require('../../common/helpers/cloudImageUpload')
+const {fileUploader} = require('../../common/helpers/cloudImageUpload')
 const {getPaginatedRecords} = require('../../common/helpers/paginate')
 
 const {
@@ -11,7 +11,12 @@ const {
 
 exports.uploadProduct = async (payload) =>{
     try {
-        const {user, data} = payload
+        const {
+            user,
+            data,
+            files
+        } = payload
+        const imageArray = []
         const existingProduct = await Product.findOne({
             where:{
                 MerchantId: user.id,
@@ -34,10 +39,27 @@ exports.uploadProduct = async (payload) =>{
             },
             {raw: true}
         )
+        for(const file of files){
+            const {path} = file
+            const url = await fileUploader(path)
+            imageArray.push(url)
+        }
+
+        await Product.update(
+            {
+                pitcure: imageArray[0],
+                picture_2: imageArray[1],
+                picture_3: imageArray[2]
+            },
+            {
+                where:{id: newProduct.id}
+            }
+        )
+        const fullProduct = await Product.findOne({where:{id: newProduct.id}})
         return {
             error: false,
             message: "Product uploaded successfully",
-            data: newProduct
+            data: fullProduct
         }
 
     } catch (error) {
@@ -51,46 +73,6 @@ exports.uploadProduct = async (payload) =>{
     }
 }
 
-exports.uploadProductImages = async(payload)=>{
-    try {
-        const {product_id, file} = payload
-        const url = await imageUploader(file)
-        if(!url){
-            return{
-                code: 400,
-                status: "error",
-                message: "failed to upload product image",
-                data: null
-            }
-        }
-        await Product.update(
-            {picture: url},
-            {where:
-                {
-                    id:product_id,
-                    deleted: false
-                },
-                
-            }
-        )
-        const updatedProduct = await Product.findOne({id: product_id})
-        return{
-            error: false,
-            message: "Image upload successful",
-            data: updatedProduct
-        }
-
-    } catch (error) {
-        console.log(error);
-        return{
-            error: true,
-            message: "Unable to upload image at the moment",
-            data:error
-        }
-    }
-
-
-}
 
 exports.getSingleProductByAUser = async (data) =>{
     try {

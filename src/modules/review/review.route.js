@@ -1,5 +1,5 @@
 const {Router} = require('express')
-const { authorize } = require('../../common/middlewares/authorize')
+const { authorize, authorizeUser } = require('../../common/middlewares/authorize')
 const validateRequest = require('../../common/middlewares/validateRequest')
 const { 
 createReviewController,
@@ -18,7 +18,7 @@ router.post(
     '/create/:id',
     validateRequest(createReviewSchema, "body"),
     validateRequest(singleItemSchema, "params"),
-    authorize(),
+    authorizeUser(),
     createReviewController
 )
 
@@ -26,14 +26,14 @@ router.get(
     '/product/:id',
     validateRequest(getProductReviewSchema, "query"),
     validateRequest(singleItemSchema, "params"),
-    authorize(),
+    // authorizeUser(),
     productReviewsController
 )
 
 router.patch(
     '/delete/:id',
     validateRequest(singleItemSchema, "params"),
-    authorize(),
+    authorizeUser(),
     deleteReviewsController
 )
 

@@ -1,5 +1,5 @@
 const {Router} = require('express')
-const { authorize } = require('../../common/middlewares/authorize')
+const { authorize, authorizeUser } = require('../../common/middlewares/authorize')
 const validateRequest = require('../../common/middlewares/validateRequest')
 const { 
 createOrderController,
@@ -18,27 +18,27 @@ const router = Router()
 router.post(
     '/create',
     validateRequest(createOrderSchema, "body"),
-    authorize(),
+    authorizeUser(),
     createOrderController
 )
 
 router.patch(
     '/cancel/:id',
     validateRequest(cancelOrderSchema, "params"),
-    authorize(),
+    authorizeUser(),
     cancelOrderController
 )
 
 router.get(
     '/my-orders',
-    authorize(),
+    authorizeUser(),
     getMyOrdersController
 )
 
 router.get(
     '/single/:id',
     validateRequest(singleOrderSchema, "params"),
-    authorize(),
+    authorizeUser(),
     singleOrderController
 )
 

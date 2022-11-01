@@ -1,6 +1,6 @@
 const {Router} = require('express')
 const { authorizeLogin } = require('../../common/middlewares/authorizeLogin')
-const {authorize} = require('../../common/middlewares/authorize')
+const {authorize, authorizeUser} = require('../../common/middlewares/authorize')
 const validateRequest = require('../../common/middlewares/validateRequest')
 const { 
  registerUserController,
@@ -31,7 +31,7 @@ router.post(
 )
 router.get(
     '/logout',
-    authorize(),
+    authorizeUser(),
     logoutUserController
 )
 
