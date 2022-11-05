@@ -155,9 +155,9 @@ exports.authorizeMerchant = () => async (req, _, next) => {
     where:{id}
     });
 
-    const ownedProduct = await Product.findOne({
-      where: {id: Number(req.params.id)}
-    })
+    // const ownedProduct = await Product.findOne({
+    //   where: {id: (req.params.id)}
+    // })
 
     if (!merchant) {
       return next(

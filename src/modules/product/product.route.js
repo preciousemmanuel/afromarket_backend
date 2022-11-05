@@ -21,7 +21,7 @@ const router = Router()
 router.post(
     '/upload',
     upload.array("image"),
-    validateRequest(uploadProductSchema, "body"),
+    // validateRequest(uploadProductSchema, "body"),
     authorizeMerchant(),
     uploadProductController
 )

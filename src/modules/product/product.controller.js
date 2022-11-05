@@ -8,7 +8,11 @@ exports.uploadProductController = async (req, res, next) => {
     try {
         const {error, message, data} = await ProductService.uploadProduct({
             user: req.user, 
-            data: req.body,
+            name: req.body.name,
+            description: req.body.description,
+            quantity_available: req.body.quantity_available,
+            price: req.body.price,
+            category_id: req.body.category_id,
             files: req.files
         })
 

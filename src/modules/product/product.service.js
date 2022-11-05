@@ -13,14 +13,18 @@ exports.uploadProduct = async (payload) =>{
     try {
         const {
             user,
-            data,
+            name,
+            description,
+            quantity_available,
+            price,
+            category_id,
             files
         } = payload
         const imageArray = []
         const existingProduct = await Product.findOne({
             where:{
                 MerchantId: user.id,
-                name: data.name,
+                name: name,
                 deleted: false
             }
         })
@@ -34,7 +38,11 @@ exports.uploadProduct = async (payload) =>{
         }
         const newProduct= await Product.create(
             {
-                ...data,
+                name,
+                description,
+                quantity_available: Number(quantity_available),
+                price: Number(price),
+                CategoryId: category_id,
                 MerchantId:user.id,           
             },
             {raw: true}
@@ -44,17 +52,38 @@ exports.uploadProduct = async (payload) =>{
             const url = await fileUploader(path)
             imageArray.push(url)
         }
-
-        await Product.update(
-            {
-                pitcure: imageArray[0],
-                picture_2: imageArray[1],
-                picture_3: imageArray[2]
-            },
-            {
-                where:{id: newProduct.id}
-            }
-        )
+        if(Number(imageArray.length) === 3){
+            await Product.update(
+                {
+                    picture: imageArray[0],
+                    picture_2: imageArray[1],
+                    picture_3: imageArray[2]
+                },
+                {
+                    where:{id: newProduct.id}
+                }
+            )
+        } else if (Number(imageArray.length) === 2) {
+            await Product.update(
+                {
+                    picture: imageArray[0],
+                    picture_2: imageArray[1],
+                },
+                {
+                    where:{id: newProduct.id}
+                }
+            )
+        } else if (Number(imageArray.length) === 1) {
+            await Product.update(
+                {
+                    picture: imageArray[0],
+                },
+                {
+                    where:{id: newProduct.id}
+                }
+            )
+        }
+        
         const fullProduct = await Product.findOne({where:{id: newProduct.id}})
         return {
             error: false,
@@ -78,7 +107,7 @@ exports.getSingleProductByAUser = async (data) =>{
     try {
         const existingProduct = await Product.findOne({
             where:{
-                id: Number(data.id),
+                id: (data.id),
                 deleted: false
             }
         })
@@ -111,7 +140,7 @@ exports.getSingleProductByAMerchant = async (data) =>{
     try {
         const existingProduct = await Product.findOne({
             where:{
-                id: Number(data.id),
+                id: (data.id),
                 deleted: false
             }
         })
@@ -182,7 +211,7 @@ exports.removeProduct = async (user, data) =>{
         const existingProduct = await Product.findOne({
             where:{
                 MerchantId: user.id,
-                id: Number(data.id),
+                id: (data.id),
                 deleted: false
             }
         })
@@ -198,7 +227,7 @@ exports.removeProduct = async (user, data) =>{
                 {deleted: true},
                 {
                     where:{
-                        id: Number(data.id),
+                        id: (data.id),
                         MerchantId:user.id
                     }   
                 }
@@ -206,7 +235,7 @@ exports.removeProduct = async (user, data) =>{
             const deletedProduct = await Product.findOne({
                 where:{
                     MerchantId: user.id,
-                    id: Number(data.id)
+                    id:(data.id)
                 }
             })
         return {
