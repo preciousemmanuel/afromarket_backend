@@ -6,27 +6,40 @@ var Sequelize = require('sequelize');
  * Actions summary:
  *
  * addColumn "address" to table "Merchants"
+ * addColumn "images" to table "Products"
  *
  **/
 
 var info = {
     "revision": 4,
-    "name": "merchantAddress",
-    "created": "2022-11-06T10:29:36.478Z",
+    "name": "imageArray",
+    "created": "2022-11-07T21:38:02.218Z",
     "comment": ""
 };
 
 var migrationCommands = [{
-    fn: "addColumn",
-    params: [
-        "Merchants",
-        "address",
-        {
-            "type": Sequelize.STRING,
-            "field": "address"
-        }
-    ]
-}];
+        fn: "addColumn",
+        params: [
+            "Merchants",
+            "address",
+            {
+                "type": Sequelize.STRING,
+                "field": "address"
+            }
+        ]
+    },
+    {
+        fn: "addColumn",
+        params: [
+            "Products",
+            "images",
+            {
+                "type": Sequelize.STRING,
+                "field": "images"
+            }
+        ]
+    }
+];
 
 module.exports = {
     pos: 0,

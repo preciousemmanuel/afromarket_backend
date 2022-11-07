@@ -1,5 +1,5 @@
 const {Router} = require('express')
-const { authorize, authorizeMerchant } = require('../../common/middlewares/authorize')
+const { authorize } = require('../../common/middlewares/authorize')
 const validateRequest = require('../../common/middlewares/validateRequest')
 const { 
  addProductToInventoryController,
@@ -22,21 +22,21 @@ router.post(
     '/add-new/:id',
     validateRequest(singleInventoryItemSchema, "params"),
     validateRequest(inventoryPriceSchema, "body"),
-    authorizeMerchant(),
+    authorize(),
     addProductToInventoryController
 )
 
 router.get(
     '/single/:id',
     validateRequest(singleInventoryItemSchema, "params"),
-    authorizeMerchant(),
+    authorize(),
    getSingleProductFromInventoryController
 )
 
 router.get(
     '/my-all',
     validateRequest(getAllProductSchema, "query"),
-    authorizeMerchant(),
+    authorize(),
     getAllProductsFromMyInventoryController
 )
 
@@ -48,7 +48,7 @@ router.get(
 router.patch(
     '/remove/:id',
     validateRequest(singleInventoryItemSchema, "params"),
-    authorizeMerchant(),
+    authorize(),
     removeProductFromInventoryController
 )
 

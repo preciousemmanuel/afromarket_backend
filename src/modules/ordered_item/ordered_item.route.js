@@ -1,5 +1,5 @@
 const {Router} = require('express')
-const { authorize, authorizeUser } = require('../../common/middlewares/authorize')
+const { authorize } = require('../../common/middlewares/authorize')
 const validateRequest = require('../../common/middlewares/validateRequest')
 const { 
 getSingleOrderedItemController,
@@ -15,14 +15,14 @@ const router = Router()
 router.get(
     '/get_one/:id/:item_id',
     validateRequest(singleItemSchema, "params"),
-    authorizeUser(),
+    authorize(),
     getSingleOrderedItemController
 )
 
 router.get(
     '/all_items/:id',
     validateRequest(singleOrderSchema, "params"),
-    authorizeUser(),
+    authorize(),
     getAllOrderedItemsOfAnOrderController
 )
 

@@ -297,6 +297,10 @@
                     "field": "business_description",
                     "seqType": "Sequelize.STRING"
                 },
+                "address": {
+                    "field": "address",
+                    "seqType": "Sequelize.STRING"
+                },
                 "bank_name": {
                     "field": "bank_name",
                     "seqType": "Sequelize.STRING"
@@ -828,6 +832,10 @@
                     "field": "name",
                     "seqType": "Sequelize.STRING"
                 },
+                "images": {
+                    "field": "images",
+                    "seqType": "Sequelize.STRING"
+                },
                 "picture": {
                     "field": "picture",
                     "seqType": "Sequelize.STRING"
@@ -1296,5 +1304,5 @@
             "indexes": []
         }
     },
-    "revision": 3
+    "revision": 4
 }
