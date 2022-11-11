@@ -5,16 +5,16 @@ const upload = require('../../common/config/multer')
 const { 
     uploadProductController,
     removeProductController,
-    uploadProductImagesController,
     getSingleProductyByAUserController,
     getAllProductsController,
     getMyProductsByMerchantController,
-    getSingleProductyByAMerchantController
+    getSingleProductyByAMerchantController,
+    getAllProductsByMerchantController,
+    editAllProductController
 } = require('./product.controller')
 const {
  uploadProductSchema,
  singleProductSchema,
- uploadProductImageSchema,
  getAllProductSchema
 } = require('./product.schema')
 
@@ -22,16 +22,10 @@ const router = Router()
 
 router.post(
     '/upload',
-    validateRequest(uploadProductSchema, "body"),
-    authorize(),
-    uploadProductController
-)
-router.patch(
-    '/:id/upload-image',
-    validateRequest(uploadProductImageSchema, "params"),
+    upload.array("image"),
+    // validateRequest(uploadProductSchema, "body"),
     authorizeMerchant(),
-    upload.single("image"),
-    uploadProductImagesController
+    uploadProductController
 )
 
 router.get(
@@ -54,16 +48,29 @@ router.get(
 
 router.get(
     '/my-all',
-    authorize(),
+    authorizeMerchant(),
     validateRequest(getAllProductSchema, "query"),
     getMyProductsByMerchantController
 ) 
 
+
+router.get(
+    '/by-merchant/:id',
+    validateRequest(getAllProductSchema, "query"),
+    validateRequest(singleProductSchema, "params"),
+    getAllProductsByMerchantController
+) 
 router.post(
     '/remove/:id',
     validateRequest(singleProductSchema, "params"),
     authorizeMerchant(),
     removeProductController
+)
+
+
+router.post(
+    '/edit-all',
+    editAllProductController
 )
 
 

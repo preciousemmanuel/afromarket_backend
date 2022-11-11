@@ -1,21 +1,31 @@
 const models = require('../../db/models')
 var Sequelize = require('sequelize')
-const imageUploader = require('../../common/helpers/cloudImageUpload')
+const {fileUploader} = require('../../common/helpers/cloudImageUpload')
 const {getPaginatedRecords} = require('../../common/helpers/paginate')
 
 const {
     sequelize,
+    Category,
     Product,
     Inventory
 } = models
 
 exports.uploadProduct = async (payload) =>{
     try {
-        const {user, data} = payload
+        const {
+            user,
+            name,
+            description,
+            quantity_available,
+            price,
+            category_id,
+            files
+        } = payload
+        const imageArray = []
         const existingProduct = await Product.findOne({
             where:{
                 MerchantId: user.id,
-                name: data.name,
+                name: name,
                 deleted: false
             }
         })
@@ -29,15 +39,37 @@ exports.uploadProduct = async (payload) =>{
         }
         const newProduct= await Product.create(
             {
-                ...data,
+                name,
+                description,
+                quantity_available: Number(quantity_available),
+                price: Number(price),
+                CategoryId: category_id,
                 MerchantId:user.id,           
             },
             {raw: true}
         )
+        for(const file of files){
+            const {path} = file
+            const url = await fileUploader(path)
+            imageArray.push(url)
+        }
+        if(imageArray.length > 0){
+            await Product.update(
+                {   
+                    images: imageArray,
+                },
+                {
+                    where:{id: newProduct.id}
+                }
+            )
+        }
+        
+       
+        const fullProduct = await Product.findOne({where:{id: newProduct.id}})
         return {
             error: false,
             message: "Product uploaded successfully",
-            data: newProduct
+            data: fullProduct
         }
 
     } catch (error) {
@@ -51,52 +83,12 @@ exports.uploadProduct = async (payload) =>{
     }
 }
 
-exports.uploadProductImages = async(payload)=>{
-    try {
-        const {product_id, file} = payload
-        const url = await imageUploader(file)
-        if(!url){
-            return{
-                code: 400,
-                status: "error",
-                message: "failed to upload product image",
-                data: null
-            }
-        }
-        await Product.update(
-            {picture: url},
-            {where:
-                {
-                    id:product_id,
-                    deleted: false
-                },
-                
-            }
-        )
-        const updatedProduct = await Product.findOne({id: product_id})
-        return{
-            error: false,
-            message: "Image upload successful",
-            data: updatedProduct
-        }
-
-    } catch (error) {
-        console.log(error);
-        return{
-            error: true,
-            message: "Unable to upload image at the moment",
-            data:error
-        }
-    }
-
-
-}
 
 exports.getSingleProductByAUser = async (data) =>{
     try {
         const existingProduct = await Product.findOne({
             where:{
-                id: Number(data.id),
+                id: (data.id),
                 deleted: false
             }
         })
@@ -129,7 +121,7 @@ exports.getSingleProductByAMerchant = async (data) =>{
     try {
         const existingProduct = await Product.findOne({
             where:{
-                id: Number(data.id),
+                id: (data.id),
                 deleted: false
             }
         })
@@ -169,11 +161,22 @@ exports.getSingleProductByAMerchant = async (data) =>{
 exports.getAllProducts = async (data) =>{
     try {
         const {limit, page} = data
+
         const allProducts = await getPaginatedRecords(Product, {
             limit: Number(limit),
             page: Number(page),
-            selectedFields: ["id", "name", "picture", "description", "ratings", "price"]
+            selectedFields: ["id", "name", "images", "description", "ratings", "price", "category", "CategoryId"]
         })
+        if(allProducts.length < 1){
+            return {
+            error: false,
+            message: "Product retreived successfully",
+            data: {
+                allProducts: [],
+                pagination: 0
+            }
+        }
+        }
         return {
             error: false,
             message: "Product retreived successfully",
@@ -200,7 +203,7 @@ exports.removeProduct = async (user, data) =>{
         const existingProduct = await Product.findOne({
             where:{
                 MerchantId: user.id,
-                id: Number(data.id),
+                id: (data.id),
                 deleted: false
             }
         })
@@ -216,7 +219,7 @@ exports.removeProduct = async (user, data) =>{
                 {deleted: true},
                 {
                     where:{
-                        id: Number(data.id),
+                        id: (data.id),
                         MerchantId:user.id
                     }   
                 }
@@ -224,7 +227,7 @@ exports.removeProduct = async (user, data) =>{
             const deletedProduct = await Product.findOne({
                 where:{
                     MerchantId: user.id,
-                    id: Number(data.id)
+                    id:(data.id)
                 }
             })
         return {
@@ -252,7 +255,7 @@ exports.getMyProductsByMerchant = async (data) =>{
             limit: Number(limit),
             page: Number(page),
             data: {MerchantId: merchant_id},
-            selectedFields: ["id", "name", "picture", "description", "ratings", "price", "deleted"]
+            selectedFields: ["id", "name", "images", "description", "ratings", "price", "deleted"]
         })
         return {
             error: false,
@@ -271,5 +274,75 @@ exports.getMyProductsByMerchant = async (data) =>{
             data: null
         }
         
+    }
+}
+
+exports.getAlllProductsByMerchant = async (data) =>{
+    try {
+        const {merchant_id, limit, page} = data
+        const allProducts = await getPaginatedRecords(Product, {
+            limit: Number(limit),
+            page: Number(page),
+            data: {MerchantId: merchant_id},
+            selectedFields: ["id", "name", "images", "description", "ratings", "price", "deleted"]
+        })
+        return {
+            error: false,
+            message: "Product retreived successfully",
+            data: {
+                allProducts: allProducts,
+                pagination: allProducts.perPage
+            }
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to retreive product at the moment",
+            data: null
+        }
+        
+    }
+}
+
+exports.editAllProducts = async () => {
+    try {
+        const results = []
+       const allProducts = await Product.findAll() 
+       if(allProducts.length < 1) {
+        return {
+            error: false,
+            message: "No product found",
+            data: []
+        }
+       }
+       for(const prod of allProducts){
+            const cat = await Category.findOne({where:{id:prod.CategoryId}})
+            await Product.update(
+                {
+                    images: prod.images,
+                    category: cat.name
+                },
+                {where: {deleted: false}}
+            )
+            const product = await Product.findOne({where:{id: prod.id}})
+            results.push(product)
+       }
+
+       return {
+            error: false,
+            message: "Products retreived successfully",
+            data: results
+       }
+
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to edit product at the moment",
+            data: null
+        }
     }
 }

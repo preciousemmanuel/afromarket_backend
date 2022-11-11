@@ -2,6 +2,7 @@
 const KEYS = require('../../common/config/keys')
 const models = require('../../db/models')
 var Sequelize = require('sequelize')
+const {Op} = Sequelize
 const randomString = require('../../common/helpers/randString')
 const {
     sendOrderDetailstoMail,
@@ -23,6 +24,14 @@ const {
 
 exports.createOrder = async (user, data) =>{
     try {
+
+         if(Boolean(user.isBlocked) === true) {
+            return {
+                error: true,
+                message: "This user has been blocked from accessing this platform",
+                data: null
+            }
+        }
 
         const {order_tray, delivery_address} = data
         let total_price = 0
@@ -68,7 +77,10 @@ exports.createOrder = async (user, data) =>{
             if(inventory){
                 var stock_left = Number(inventory.quantity_available)-Number(item.quantity_ordered)
                 await Product.update(
-                    {quantity_available: stock_left },
+                    {
+                        images: inventory.images,
+                        quantity_available: stock_left
+                     },
                     {where:{
                             id: inventory.ProductId, 
                             deleted: false
@@ -76,7 +88,10 @@ exports.createOrder = async (user, data) =>{
                     }
                 )
                 await Inventory.update(
-                    {quantity_available: stock_left },
+                    {
+                        images: inventory.images,
+                        quantity_available: stock_left 
+                    },
                     {where:{
                             ProductId: inventory.ProductId, 
                             deleted: false
@@ -88,21 +103,33 @@ exports.createOrder = async (user, data) =>{
                 })
                 if(Number(updatedProduct.quantity_available) === 0){
                    await Inventory.update(
-                        {status: 'out of stock' },
+                        {
+                            images: inventory.images,
+                            status: 'out of stock',
+                        },
                         {where:{ProductId: updatedProduct.id, deleted: false}}
                     ) 
                     await Product.update(
-                        {status: 'out of stock' },
+                        {
+                            images: inventory.images,
+                            status: 'out of stock'
+                         },
                         {where:{id: updatedProduct.id, deleted: false}}
                    )
+                } else {
+                    await Inventory.update(
+                        {
+                            images: inventory.images,
+                            quantity_available: stock_left
+                        },
+                        {where:{ProductId: updatedProduct.id, deleted: false}}
+                    ) 
                 }
                 const resale_cut = (Number(inventory.price) - Number(updatedProduct.price))
                 const ordered_item = await OrderedItem.create({
                     ProductId: updatedProduct.id,
                     product_name: updatedProduct.name,
-                    picture: updatedProduct.picture,
-                    piture_2: updatedProduct.piture_2,
-                    picture_3: updatedProduct.picture_3,
+                    images: updatedProduct.images,
                     quantity_ordered: Number(item.quantity_ordered),
                     price: Number(inventory.price),
                     total: (Number(inventory.price))*(Number(item.quantity_ordered)),
@@ -117,15 +144,22 @@ exports.createOrder = async (user, data) =>{
                 const orderId = ordered_item.id
                 ordered_items_ids.push(orderId)
                 total_price += Number(ordered_item.total)
-            }else if(product){             
+            }else if(product){ 
+                console.log(product);
                 var stock_left = Number(product.quantity_available)-Number(item.quantity_ordered)
                 await Product.update(
-                    {quantity_available: stock_left},
-                    {where:{id: item.id, deleted: false}}
+                    {
+                        quantity_available: stock_left,
+                        images: product.images
+                    },
+                    {where:{id: product.id, deleted: false}}
                 )
                 
                 await Inventory.update(
-                    {quantity_available:stock_left },
+                    {
+                        images: product.images,
+                        quantity_available:stock_left
+                     },
                     {where:{ProductId: product.id, deleted: false}}
                 )
 
@@ -134,17 +168,24 @@ exports.createOrder = async (user, data) =>{
                 })
                 if(Number(updatedProduct.quantity_available) === 0){
                    await Product.update(
-                        {status: 'out of stock' },
+                        {
+                            images: product.images,
+                            status: 'out of stock' 
+                        },
                         {where:{id: product.id, deleted: false}}
                    )
                    await Inventory.update(
-                        {status: 'out of stock' },
+                        {
+                            images: product.images,
+                            status: 'out of stock'
+                         },
                         {where:{ProductId: product.id, deleted: false}}
                    ) 
                 }
                 const ordered_item = await OrderedItem.create({
                     ProductId: product.id,
                     product_name: product.name,
+                    images: product.images,
                     quantity_ordered: Number(item.quantity_ordered),
                     price: Number(product.price),
                     total: (Number(product.price))*(Number(item.quantity_ordered)),
@@ -261,10 +302,13 @@ exports.cancelOrder = async (user, data) =>{
                 data: null
             }
         }
-        await Order.upsert({
-            id: existingOrder.id,
-            status: "canceled",
-        })
+        await Order.update(
+            {
+                items:existingOrder.items,
+                status: "canceled",
+            },
+            {where:{id: existingOrder.id,}}
+        )
          const canceledOrder = await Order.findOne({
             where:{
                 id: existingOrder.id,
@@ -293,9 +337,18 @@ exports.cancelOrder = async (user, data) =>{
 
 exports.getMyOrders = async (user) =>{
     try {
-        let allMyOrders = {}
+        const activeOrders = []
+        const canceledOrders = []
+        const deliveredOrders = []
+        const disputedOrders = []
+
 
         const myOrders = await Order.findAll({
+            attributes: {exclude:[
+             'items',
+             'TrackerId',
+             'deleted' 
+            ]},
             where:{
                 UserId: user.id,
                 deleted: false
@@ -314,16 +367,28 @@ exports.getMyOrders = async (user) =>{
         }
 
           for(const order of myOrders){
-            const orderId = order.id
-            const ordered_items = await OrderedItem.findAll({where:{OrderId: orderId}})
-            allMyOrders[orderId] = ordered_items
-        }
+            if(String(order.status) === "active"){
+                activeOrders.push(order)
+            }else if(String(order.status) === "canceled") {
+                canceledOrders.push(order)
+            } else if (String(order.status) === "delivered"){
+                deliveredOrders.push(order)
+            } else if (String(order.status) === "disputed") {
+                disputedOrders.push(order)
+            }
+
+          }
         
         
         return {
             error: false,
             message: "Orders Retrieved successfully",
-            data: [myOrders, allMyOrders]
+            data: {
+                active_orders: activeOrders,
+                canceled_orders: canceledOrders,
+                delivered_orders: deliveredOrders,
+                disputed_orders: disputedOrders
+            }
         }
 
     } catch (error) {
@@ -340,6 +405,7 @@ exports.getMyOrders = async (user) =>{
 exports.getSingleOrder = async (user, data) =>{
     try {
         const singleOrder = await Order.findOne({
+            attributes:{exclude:[ 'TrackerId', 'deleted']},
             where:{
                 id: data.id,
                 UserId: user.id
@@ -365,5 +431,67 @@ exports.getSingleOrder = async (user, data) =>{
             data: null
         }
         
+    }
+}
+
+exports.trackMyOrder = async(data) =>{
+    try {
+        const {
+            user_id,
+            tracking_id
+        } = data
+        const upper = String(tracking_id).toUpperCase()
+
+        const foundOrder = await Order.findOne({
+            where:{
+                trackingId : {[Op.like]: `%${upper}%`},
+                UserId: user_id
+            },
+            order: [
+                ['created_at', 'DESC'],
+            ],
+        })
+
+        if(!foundOrder) {
+            return {
+                error: false,
+                message: "No Results for tracking IDs entered",
+                data: null
+            }
+        } else if (String(foundOrder.status) === "canceled"){
+            return {
+                error: false,
+                message: "The resulting order has already been canceled",
+                data: null
+            }
+        }
+
+        const tracker = await Tracker.findOne({
+            where:{trackingId: foundOrder.trackingId}
+        })
+
+        const trackedOrder = {
+            tracking_id: foundOrder.trackingId,
+            order_status: foundOrder.status,
+            total_cost: foundOrder.order_cost,
+            delivery_date: foundOrder.delivery_date,
+            delivery_address: foundOrder.delivery_address,
+            tracking_status: tracker.status,
+            date_created: foundOrder.created_at
+        }
+
+        return {
+            error: false,
+            message: "tracking information retrieved successfully",
+            data: trackedOrder
+        }
+        
+    } catch (error) {
+        console.log(error);
+        return {
+            error: true,
+            message: error.message || "Unable to retrieve tracking information at the moment",
+            data: null
+        }
     }
 }
