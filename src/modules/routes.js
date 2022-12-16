@@ -16,6 +16,10 @@ const adminDisputes =  require('./admin/dispute/admin-dispute.route')
 const adminHomePage = require('./admin/home/admin-home.route')
 const flwPayment = require('./flw-payment/flw.route')
 const withdrawal = require('./withdrawal/withdrawal.route')
+const customers = require('./customer/customer.route')
+const rates = require('./rate/rate.route')
+const wallets = require('./wallet/wallet.route')
+
 
 
 
@@ -35,6 +39,11 @@ module.exports = () => {
   router.use('/review', reviews)
   router.use('/payment', flwPayment)
   router.use('/withdrawal', withdrawal)
+  router.use('/customer', customers)
+  router.use('/rate-card', rates)
+  router.use('/wallet', wallets)
+
+
 
 
   //Admin routes

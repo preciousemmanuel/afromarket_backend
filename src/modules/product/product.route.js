@@ -10,10 +10,10 @@ const {
     getMyProductsByMerchantController,
     getSingleProductyByAMerchantController,
     getAllProductsByMerchantController,
-    editAllProductController
+    editAllProductController,
+    updateProductController
 } = require('./product.controller')
 const {
- uploadProductSchema,
  singleProductSchema,
  getAllProductSchema
 } = require('./product.schema')
@@ -23,7 +23,6 @@ const router = Router()
 router.post(
     '/upload',
     upload.array("image"),
-    // validateRequest(uploadProductSchema, "body"),
     authorizeMerchant(),
     uploadProductController
 )
@@ -71,6 +70,14 @@ router.post(
 router.post(
     '/edit-all',
     editAllProductController
+)
+
+router.patch(
+    '/update/:id',
+    validateRequest(singleProductSchema, "params"),
+    upload.array("image"),
+    authorizeMerchant(),
+    updateProductController
 )
 
 

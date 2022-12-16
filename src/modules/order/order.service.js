@@ -18,6 +18,7 @@ const {
     Product,
     OrderedItem,
     Inventory,
+    Customer,
     Merchant,
     Tracker
 } = models
@@ -37,10 +38,11 @@ exports.createOrder = async (user, data) =>{
         let total_price = 0
         let finalOrderedItems = []
         let ordered_items_ids = []
+        let customers = []
         const newOrder= await Order.create(
             {   items: '',
                 UserId:user.id,
-                delivery_address: delivery_address,
+                delivery_address: delivery_address? delivery_address: user.delivery_address,
 
             },
             {raw: true}
@@ -75,6 +77,7 @@ exports.createOrder = async (user, data) =>{
             const inventory = await Inventory.findOne({where: {id: item.id, deleted: false}})
             const product = await Product.findOne({where:{id: item.id, deleted: false}})
             if(inventory){
+                const merchant = await Merchant.findOne({where: {id: inventory.inventory_owner}})
                 var stock_left = Number(inventory.quantity_available)-Number(item.quantity_ordered)
                 await Product.update(
                     {
@@ -140,12 +143,25 @@ exports.createOrder = async (user, data) =>{
                     profit_owner: inventory.inventory_owner
                 })
 
+                //Add Merchant to potential customer list
+                const existingCustomer = await Customer.findOne({where:{customer_id: merchant.id}})
+                if(!existingCustomer){
+                    const customer = await Customer.create({
+                        customer_id: merchant.id,
+                        customer_name: merchant.business_name,
+                        customer_contact: merchant.phone_number,
+                        customer_address: merchant.address,
+                        user_id: user.id
+                    })
+                customers.push(customer)
+                }
+                
                 finalOrderedItems.push(ordered_item)
                 const orderId = ordered_item.id
                 ordered_items_ids.push(orderId)
                 total_price += Number(ordered_item.total)
             }else if(product){ 
-                console.log(product);
+                const merchant = await Merchant.findOne({where: {id: product.MerchantId}})
                 var stock_left = Number(product.quantity_available)-Number(item.quantity_ordered)
                 await Product.update(
                     {
@@ -192,6 +208,20 @@ exports.createOrder = async (user, data) =>{
                     OrderId:newOrder.id,
                     MerchantId: product.MerchantId,
                 })
+
+                //Add Merchant to potential customer list
+                const existingCustomer = await Customer.findOne({where:{customer_id: merchant.id}})
+                if(!existingCustomer){
+                    const customer = await Customer.create({
+                        customer_id: merchant.id,
+                        customer_name: merchant.business_name,
+                        customer_contact: merchant.phone_number,
+                        customer_address: merchant.address,
+                        user_id: user.id
+                    })
+                    customers.push(customer)
+                }
+                
                 finalOrderedItems.push(ordered_item)
                 const orderId = ordered_item.id
                 ordered_items_ids.push(orderId)
@@ -251,6 +281,7 @@ exports.createOrder = async (user, data) =>{
             redirect_url: KEYS.flwRedirectUrl,
             email: user.email,
             name: user.fullName,
+            phone_number: user.phone_number,
             order_id: placedOrder.id,
             tracking_id: tracking_id
         }
@@ -269,7 +300,8 @@ exports.createOrder = async (user, data) =>{
                 customerEmailResponse: customerMail.message,
                 merchantMailResponse: merchantMail.data,
                 paymentDetails: paymentDetails,
-                withdrawalDetails: withdrawal
+                withdrawalDetails: withdrawal,
+                customers: customers
 
             }
         }
@@ -359,11 +391,16 @@ exports.getMyOrders = async (user) =>{
         })
 
         if(Number(myOrders.length) < 1 ){
-            return{
-                error: true,
-                message: 'Cannot find any of your orders',
-                data: null
+            return {
+            error: false,
+            message: "Orders Retrieved successfully",
+            data: {
+                active_orders: [],
+                canceled_orders: [],
+                delivered_orders: [],
+                disputed_orders: []
             }
+        }
         }
 
           for(const order of myOrders){

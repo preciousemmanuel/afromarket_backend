@@ -2,6 +2,7 @@ const models = require('../../db/models')
 var Sequelize = require('sequelize')
 const {fileUploader} = require('../../common/helpers/cloudImageUpload')
 const {getPaginatedRecords} = require('../../common/helpers/paginate')
+var uri2path = require('file-uri-to-path');
 
 const {
     sequelize,
@@ -17,6 +18,7 @@ exports.uploadProduct = async (payload) =>{
             name,
             description,
             quantity_available,
+            specific_details,
             price,
             category_id,
             files
@@ -30,6 +32,8 @@ exports.uploadProduct = async (payload) =>{
             }
         })
 
+        const category = await Category.findOne({where:{id: category_id}})
+
         if(existingProduct){
             return{
                 error: true,
@@ -39,18 +43,21 @@ exports.uploadProduct = async (payload) =>{
         }
         const newProduct= await Product.create(
             {
-                name,
+                name: String(name).toLowerCase(),
                 description,
+                specific_details: specific_details? specific_details: {},
                 quantity_available: Number(quantity_available),
                 price: Number(price),
                 CategoryId: category_id,
+                category: category.name,
                 MerchantId:user.id,           
             },
             {raw: true}
         )
         for(const file of files){
-            const {path} = file
-            const url = await fileUploader(path)
+             const {path, uri} = file
+             const string = path?path: await uri2path(uri)
+            const url = await fileUploader(string)
             imageArray.push(url)
         }
         if(imageArray.length > 0){
@@ -143,7 +150,7 @@ exports.getSingleProductByAMerchant = async (data) =>{
         return {
             error: false,
             message: "Product retreived successfully",
-            data: [existingProduct, allInventoriesOfAProduct]
+            data: {existingProduct, allInventoriesOfAProduct}
         }
 
     } catch (error) {
@@ -165,7 +172,7 @@ exports.getAllProducts = async (data) =>{
         const allProducts = await getPaginatedRecords(Product, {
             limit: Number(limit),
             page: Number(page),
-            selectedFields: ["id", "name", "images", "description", "ratings", "price", "category", "CategoryId"]
+            selectedFields: ["id", "name", "images", 'quantity_available', "description", "ratings", "price", "category", "CategoryId"]
         })
         if(allProducts.length < 1){
             return {
@@ -255,7 +262,7 @@ exports.getMyProductsByMerchant = async (data) =>{
             limit: Number(limit),
             page: Number(page),
             data: {MerchantId: merchant_id},
-            selectedFields: ["id", "name", "images", "description", "ratings", "price", "deleted"]
+            selectedFields: ["id", "name", "images", 'quantity_available', "description", "ratings", "price", "category", "CategoryId"]
         })
         return {
             error: false,
@@ -284,7 +291,7 @@ exports.getAlllProductsByMerchant = async (data) =>{
             limit: Number(limit),
             page: Number(page),
             data: {MerchantId: merchant_id},
-            selectedFields: ["id", "name", "images", "description", "ratings", "price", "deleted"]
+            selectedFields: ["id", "name", "images", 'quantity_available', "description", "ratings", "price", "category", "CategoryId"]
         })
         return {
             error: false,
@@ -344,5 +351,80 @@ exports.editAllProducts = async () => {
             message: error.message|| "Unable to edit product at the moment",
             data: null
         }
+    }
+}
+
+exports.updateAProduct = async (payload) =>{
+    try {
+        const {
+            id,
+            user,
+            name,
+            description,
+            quantity_available,
+            specific_details,
+            price,
+            category_id,
+            files
+        } = payload
+        const imageArray = []
+        var category
+        const existingProduct = await Product.findOne({
+            where:{
+                MerchantId: user.id,
+                id: id,
+                deleted: false
+            }
+        })
+        if (category_id !== (null|| undefined)){
+            category = await Category.findOne({where:{id: category_id}})
+        }
+
+        if(!existingProduct){
+            return{
+                error: true,
+                message: 'Product Not Found',
+                data: null
+            }
+        }
+
+        if(files.length > 0){
+            for(const file of files){
+                const {path, uri} = file
+                const string = path?path:uri
+                const url = await fileUploader(string)
+                imageArray.push(url)
+            }
+        }
+        await Product.update(
+            {
+                name: name? String(name).toLowerCase(): existingProduct.name,
+                description: description? description: existingProduct.description,
+                images: (files.length>0)? imageArray: existingProduct.images,
+                specific_details: specific_details? specific_details: existingProduct.specific_details,
+                quantity_available:quantity_available? Number(quantity_available): existingProduct.quantity_available,
+                price: price?Number(price): existingProduct.price,
+                CategoryId: category? category.id: existingProduct.CategoryId,
+                category:category? category.name: existingProduct.category,
+            },
+            {where:{id:existingProduct.id}}
+        )
+               
+       
+        const updatedProduct = await Product.findOne({where:{id: existingProduct.id}})
+        return {
+            error: false,
+            message: "Product updated successfully",
+            data: updatedProduct
+        }
+
+    } catch (error) {
+        console.log(error)
+        return{
+            error: true,
+            message: error.message|| "Unable to update product at the moment",
+            data: null
+        }
+        
     }
 }
