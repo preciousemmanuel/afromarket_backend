@@ -4,6 +4,7 @@ const {fileUploader} = require('../../common/helpers/cloudImageUpload')
 const {hashPassword, comparePassword} = require('../../common/helpers/password')
 const {jwtSign} = require('../../common/helpers/token')
 const cloudinary = require('../../common/config/cloudinary')
+var uri2path = require('file-uri-to-path');
 const { getPaginatedRecords } = require('../../common/helpers/paginate')
 const {
     sequelize,
@@ -66,13 +67,16 @@ exports.registerMerchant = async (data) =>{
             {raw: true}
         )
         const uploadUrls = []
-
-        //upload docs
+        // upload docs
+        console.log(data);
         for(const file of files) {
-            const {path} = file
-            const url = await fileUploader(path)
+            const {path, uri} = file
+            const string = path?path:uri2path(uri)
+            const url = await fileUploader(string)
             uploadUrls.push(url)
         }
+
+
         await Merchant.update(
             {
                 cac_document: uploadUrls[0],
